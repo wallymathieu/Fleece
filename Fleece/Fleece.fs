@@ -41,20 +41,20 @@ module Fleece =
             
     
     type private JsonHelpers() =
-        static member create (x : decimal) : JValue = JValue x
-        static member create (x : Double) : JValue = JValue x
-        static member create (x : Single) : JValue= JValue (float x)
-        static member create (x : int) : JValue = JValue (decimal x)
-        static member create (x : bool) : JValue = JValue x
-        static member create (x : uint32) : JValue = JValue (decimal x)
-        static member create (x : int64) : JValue = JValue (decimal x)
-        static member create (x : uint64) : JValue = JValue (decimal x)
-        static member create (x : int16) : JValue = JValue (decimal x)
-        static member create (x : uint16) : JValue = JValue (decimal x)
-        static member create (x : byte) : JValue = JValue (decimal x)
-        static member create (x : sbyte) : JValue = JValue (decimal x)
-        static member create (x : char) : JValue = JValue (string x)
-        static member create (x : Guid) : JValue = JValue (string x)
+        static member create (x : decimal) = JValue x :> JToken
+        static member create (x : Double) = JValue x :> JToken
+        static member create (x : Single) = JValue (float x) :> JToken
+        static member create (x : int) = JValue (decimal x) :> JToken
+        static member create (x : bool) = JValue x :> JToken
+        static member create (x : uint32) = JValue (decimal x) :> JToken
+        static member create (x : int64) = JValue (decimal x) :> JToken
+        static member create (x : uint64) = JValue (decimal x) :> JToken
+        static member create (x : int16) = JValue (decimal x) :> JToken
+        static member create (x : uint16) = JValue (decimal x) :> JToken
+        static member create (x : byte) = JValue (decimal x) :> JToken
+        static member create (x : sbyte) = JValue (decimal x)  :> JToken
+        static member create (x : char) = JValue (string x) :> JToken
+        static member create (x : Guid) = JValue (string x) :> JToken
 
 
     type private ReadOnlyJsonPropertiesDictionary(properties:(string * JToken)[]) =                
@@ -106,14 +106,14 @@ module Fleece =
         | :? ReadOnlyJsonPropertiesDictionary as x -> x.Properties |> JObject
         | _ -> x |> Seq.map (fun p -> p.Key,p.Value) |> Array.ofSeq |> JObject
 
-    let inline JArray (x: JValue IReadOnlyList) = JArray (x |> Array.ofSeq)
+    let inline JArray (x: JToken IReadOnlyList) = JArray (x |> Array.ofSeq)
     let inline JObject (x: IReadOnlyDictionary<string, JToken>) = JObject (dictAsProps x)
     let inline JBool (x: bool) = JValue x
-    let JNull : JValue = JValue.CreateNull()
+    let JNull = JValue.CreateNull() :> JToken
     let inline JString (x: string) = 
         if x = null 
-            then JValue.CreateNull()
-            else JValue x
+            then JNull
+            else JValue x :> JToken
     
     #endif
     #if FSHARPDATA
