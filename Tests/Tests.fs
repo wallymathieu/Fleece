@@ -9,8 +9,12 @@ open FSharpPlus
 
 #if FSHARPDATA
 open FSharp.Data
-#else
+#endif
+#if SYSTEMJSON
 open System.Json
+#endif
+#if NEWTONSOFT
+open Newtonsoft.Json
 #endif
 
 

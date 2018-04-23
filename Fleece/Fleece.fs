@@ -16,7 +16,8 @@ module Fleece =
     #if NEWTONSOFT
     
     open Newtonsoft.Json.Linq
-
+    type JsonValue = JToken
+    type JsonObject = JObject
     // unify JsonValue.Number and JsonValue.Float
     type JValue with
         
@@ -85,18 +86,18 @@ module Fleece =
                     | None -> false                                
 
 
-    let jsonObjectGetValues (x : JObject) = ReadOnlyJsonPropertiesDictionary(x.Properties) :> IReadOnlyDictionary<string, JToken>
+    let jsonObjectGetValues (x : JObject) = ReadOnlyJsonPropertiesDictionary( x.Properties() |> Seq.map (fun p-> (p.Name, p.Value)) |> Seq.toArray ) :> IReadOnlyDictionary<string, JToken>
 
 
-    // FSharp.Data.JsonValue AST adapter
+    // FSharp.Newtonsoft.Json AST adapter
 
-    let (|JArray|JObject|JNumber|JBool|JString|JNull|) (o:JToken) =
+    let (|JArray|JObject|JInteger|JFloat|JBool|JString|JNull|) (o:JToken) =
         match o.Type with
         | JTokenType.Null -> JNull
         | JTokenType.Array -> JArray ( (o :?> JArray).AsReadOnlyList())
         | JTokenType.Object -> JObject (jsonObjectGetValues (o :?> JObject))
-        | JTokenType.Integer  -> JNumber (o.ToObject() :float)
-        | JTokenType.Float -> JNumber (o.ToObject() :float)
+        | JTokenType.Integer  -> JInteger (o.ToObject() :int64)
+        | JTokenType.Float -> JFloat (o.ToObject() :float)
         | JTokenType.Boolean -> JBool (o.ToObject() :bool)
         | JTokenType.String -> JString (o.ToObject() :string)
     
@@ -301,51 +302,51 @@ module Fleece =
         type JsonHelpers with
         
             static member tryReadDecimal = function
-                | JNumber n -> n.ToDecimal() |> Success
+                | JFloat n -> decimal n |> Success
                 | a -> failparse "decimal" a   
 
             static member tryReadInt16 = function
-                | JNumber n -> n.ToInt16() |> Success
+                | JInteger n -> int16 n |> Success
                 | a -> failparse "int16" a
             
             static member tryReadInt = function
-                | JNumber n -> n.ToInt32() |> Success
+                | JInteger n -> int32 n |> Success
                 | a -> failparse "int" a    
 
             static member tryReadInt64 = function
-                | JNumber n -> n.ToInt64() |> Success
+                | JInteger n -> n |> Success
                 | a -> failparse "int64" a
 
             static member tryReadUInt16 = function
-                | JNumber n -> n.ToUInt16() |> Success
+                | JInteger n -> uint16 n |> Success
                 | a -> failparse "unint16" a
 
             static member tryReadUInt32 = function
-                | JNumber n -> n.ToUInt32() |> Success
+                | JInteger n -> uint32 n |> Success
                 | a -> failparse "unint32" a
 
             static member tryReadUInt64 = function
-                | JNumber n -> n.ToUInt64() |> Success
+                | JInteger n -> uint64 n |> Success
                 | a -> failparse "unint64" a
 
             static member tryReadByte = function
-                | JNumber n -> n.ToByte() |> Success
+                | JInteger n -> byte n |> Success
                 | a -> failparse "byte" a
 
             static member tryReadSByte = function
-                | JNumber n -> n.ToSByte() |> Success
+                | JInteger n -> sbyte n |> Success
                 | a -> failparse "sbyte" a
 
             static member tryReadDouble = function
-                | JNumber n -> n.ToDouble() |> Success
+                | JFloat n -> double n |> Success
                 | a -> failparse "double" a
 
             static member tryReadSingle = function
-                | JNumber n -> n.ToSingle() |> Success
+                | JFloat n -> single n |> Success
                 | a -> failparse "single" a      
                 
             static member jsonObjectFromJSON =
-                fun (o: JsonValue) ->
+                fun (o: JToken) ->
                     match o with
                     | JObject x -> Success (dictAsProps x)
                     | a -> failparse "JsonObject" a     
