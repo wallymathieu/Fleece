@@ -478,7 +478,6 @@ module Fleece =
             | JNull -> Success null
             | a -> failparse "string" a
 
-        static member FromJSON (_: JsonObject, FromJSONClass) = JsonHelpers.jsonObjectFromJSON
         static member FromJSON (_:decimal, FromJSONClass) = JsonHelpers.tryReadDecimal        
         static member FromJSON (_:int16, FromJSONClass) = JsonHelpers.tryReadInt16
         static member FromJSON (_:int, FromJSONClass) = JsonHelpers.tryReadInt        
@@ -708,6 +707,8 @@ module Fleece =
         static member inline FromJSON (r:'R, _:obj                             ) = (^R : (static member FromJSON: ^R   -> (JsonValue -> ^R ParseResult)) r ) : JsonValue ->  ^R ParseResult
         static member inline FromJSON (_:'R, _:Collections.IStructuralEquatable) = fun js -> (^R : (static member FromJSON: JsonValue -> ^R ParseResult) js) : ^R ParseResult
 
+    type FromJSONClass with
+        static member FromJSON (_: JsonObject, FromJSONClass) = JsonHelpers.jsonObjectFromJSON    
     // Serializing:
 
     type ToJSONClass = ToJSONClass with
