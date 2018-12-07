@@ -16,7 +16,7 @@ module Redis=
     module HashEntryList=
       let union a b = List.append a b // NOTE: let's start with this, need to verify assumption later
   open Helpers
-
+  type RObject = HashEntry list
   type RType =
       | Object = 1
       | Array  = 2
@@ -120,6 +120,10 @@ module Redis=
   /// <returns>The resulting object codec.</returns>
   let withFields f = (fun _ -> Success f), (fun _ -> [])
 
+
+  /// Creates a new Redis key,value pair for a Redis object
+  let inline rpairWith toRedis (key: string) value = key, toRedis value
+
   let diApply combiner (remainderFields: SplitCodec<'S, 'f ->'r, 'T>) (currentField: SplitCodec<'S, 'f, 'T>) =
       ( 
           Compose.run (Compose (fst remainderFields: Decoder<'S, 'f -> 'r>) <*> Compose (fst currentField)),
@@ -151,3 +155,76 @@ module Redis=
       match tryFindEntry key o with
       | Some value -> ofRedis value |> map Some
       | _ -> Success None
+  module Operators =
+
+      /// Creates a new Json key,value pair for a Json object
+      let inline (.=) key value = rpair key value
+
+      /// Creates a new Json key,value pair for a Json object if the value is present in the option
+      let inline (.=?) (key: string) value = rpairOpt key value
+
+      /// Gets a value from a Json object
+      let inline (.@) o key = rget o key
+
+      /// Tries to get a value from a Json object.
+      /// Returns None if key is not present in the object.
+      let inline (.@?) o key = rgetOpt o key
+      /// <summary>Applies a field mapping to the object codec.</summary>
+      /// <param name="fieldName">A string that will be used as key to the field.</param>
+      /// <param name="getter">The field getter function.</param>
+      /// <param name="rest">The other mappings.</param>
+      /// <returns>The resulting object codec.</returns>
+      let inline (<*/>) (rest: SplitCodec<_, _->'Rest, _>) (fieldName, getter: 'T -> 'Value) = rfield fieldName getter rest
+
+      /// <summary>Appends the first field mapping to the codec.</summary>
+      /// <param name="fieldName">A string that will be used as key to the field.</param>
+      /// <param name="getter">The field getter function.</param>
+      /// <param name="f">An object initializer as a curried function.</param>
+      /// <returns>The resulting object codec.</returns>
+      let inline (<!/>) f (fieldName, getter: 'T -> 'Value) = rfield fieldName getter (withFields f)
+
+      /// <summary>Appends an optional field mapping to the codec.</summary>
+      /// <param name="fieldName">A string that will be used as key to the field.</param>
+      /// <param name="getter">The field getter function.</param>
+      /// <param name="rest">The other mappings.</param>
+      /// <returns>The resulting object codec.</returns>
+      let inline (<*/?>) (rest: SplitCodec<_, _ -> 'Rest, _>) (fieldName, getter: 'T -> 'Value option) = rfieldOpt fieldName getter rest
+
+      /// <summary>Appends the first field (optional) mapping to the codec.</summary>
+      /// <param name="fieldName">A string that will be used as key to the field.</param>
+      /// <param name="getter">The field getter function.</param>
+      /// <param name="f">An object initializer as a curried function.</param>
+      /// <returns>The resulting object codec.</returns>
+      let inline (<!/?>) f (fieldName, getter: 'T -> 'Value option) = rfieldOpt fieldName getter (withFields f)
+
+      /// Tuple two values.
+      let inline (^=) a b = (a, b)
+
+      /// Gets a value from a Json object
+      let inline rgetFromListWith ofRedis (o: list<HashEntry>) key =
+          match tryFindEntry key o with
+          | Some value -> ofRedis value
+          | _ -> Decode.Fail.propertyNotFound key (ofList o)
+
+      /// Tries to get a value from a Json object.
+      /// Returns None if key is not present in the object.
+      let inline rgetFromListOptWith ofRedis (o: list<HashEntry>) key =
+          match tryFindEntry key o with
+          | Some value -> ofRedis value |> map Some
+          | _ -> Ok None
+
+      let inline roptWith codec prop getter =
+          {
+              Decoder = ReaderT (fun (o: list<HashEntry>) -> rgetFromListOptWith (fst codec) o prop)
+              Encoder = fun x -> Const (match getter x with Some (x: 'Value) -> [HashEntry (implicit prop, (snd codec) x)] | _ -> [])
+          }
+
+      let inline jreqWith codec (prop: string) (getter: 'T -> 'Value option) =
+          {
+              Decoder = ReaderT (fun (o: list<HashEntry>) -> rgetFromListWith (fst codec) o prop)
+              Encoder = fun x -> Const (match getter x with Some (x: 'Value) -> [HashEntry (implicit prop, (snd codec) x)] | _ -> [])
+          }
+
+      let inline jchoice (codecs: seq<ConcreteCodec<'S, 'S, 't1, 't2>>) =
+          let head, tail = Seq.head codecs, Seq.tail codecs
+          foldBack (<|>) tail head
