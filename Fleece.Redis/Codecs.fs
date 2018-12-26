@@ -238,7 +238,7 @@ module Redis=
             let inline deriveFieldCodec codec prop getter =
                 (
                     (fun (o: HashEntry list) -> rgetWith (fst codec) o prop),
-                    (getter >> fun (x: 'Value) -> [HashEntry(implicit prop, implicit ((snd codec) x))])
+                    (getter >> fun (x: 'Value) -> [HashEntry(implicit prop, ((snd codec) x))])
                 )
             diApply HashEntryList.union rest (deriveFieldCodec codec fieldName getter)
 
@@ -259,7 +259,7 @@ module Redis=
             let inline deriveFieldCodecOpt codec prop getter =
                 (
                     (fun (o: HashEntry list) -> rgetOptWith (fst codec) o prop),
-                    (getter >> function Some (x: 'Value) -> [HashEntry(implicit prop, implicit ((snd codec) x))] | _ -> [])
+                    (getter >> function Some (x: 'Value) -> [HashEntry(implicit prop, ((snd codec) x))] | _ -> [])
                 )
             diApply HashEntryList.union rest (deriveFieldCodecOpt codec fieldName getter)
 
