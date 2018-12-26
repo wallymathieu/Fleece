@@ -4,9 +4,9 @@ open System.Text
 open System.Collections.Generic
 open System.Linq
 open Fuchu
-open FSharpPlus
 open Fleece.Redis
-
+open Fleece.Redis.Operators
+open FSharpPlus
 type Person = {
     Name: string
     Age: int
