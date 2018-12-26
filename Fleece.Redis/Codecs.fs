@@ -4,7 +4,6 @@ open FSharpPlus.Data
 open StackExchange.Redis
 open System.Collections.Generic
 open System
-open StackExchange.Redis
 
 type Default7 = class end
 type Default6 = class inherit Default7 end
@@ -108,22 +107,24 @@ module Redis=
         static member OfRedis (_: double,     _: OfRedis) = RedisDecode.double
         static member OfRedis (_: string,     _: OfRedis) = RedisDecode.string
         static member OfRedis (_: byte array, _: OfRedis) = RedisDecode.byteArray
+        //static member OfRedis (_: RedisValue, _: OfRedis) = id
     type OfRedis with
         static member inline Invoke (x: RedisValue) : 't ParseResult =
             let inline iOfRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member OfRedis : ^b * _ -> (RedisValue -> ^b ParseResult)) b, a)
             iOfRedis (Unchecked.defaultof<OfRedis>, Unchecked.defaultof<'t>) x
 
-    /// Maps Json to a type
+    /// Maps Redis to a type
     let inline ofRedis (x: RedisValue) : 't ParseResult = OfRedis.Invoke x
 
     type ToRedis =
         inherit Default1
-        static member ToJson (x: bool          , _: ToRedis) = RedisEncode.boolean        x
-        static member ToJson (x: int           , _: ToRedis) = RedisEncode.int            x
-        static member ToJson (x: int64         , _: ToRedis) = RedisEncode.int64          x
-        static member ToJson (x: double        , _: ToRedis) = RedisEncode.double         x
-        static member ToJson (x: string        , _: ToRedis) = RedisEncode.string         x
-        static member ToJson (x: byte array    , _: ToRedis) = RedisEncode.byteArray      x
+        static member ToRedis (x: bool          , _: ToRedis) = RedisEncode.boolean        x
+        static member ToRedis (x: int           , _: ToRedis) = RedisEncode.int            x
+        static member ToRedis (x: int64         , _: ToRedis) = RedisEncode.int64          x
+        static member ToRedis (x: double        , _: ToRedis) = RedisEncode.double         x
+        static member ToRedis (x: string        , _: ToRedis) = RedisEncode.string         x
+        static member ToRedis (x: byte array    , _: ToRedis) = RedisEncode.byteArray      x
+        //static member ToRedis (x: RedisValue    , _: ToRedis) =                            x
     type ToRedis with
         static member inline Invoke (x: 't) : RedisValue =
             let inline iToRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member ToRedis : ^b * _ -> RedisValue) b, a)
@@ -164,11 +165,12 @@ module Redis=
                 Encoder = fun w -> (source.Encoder w ++ alternative.Encoder w)
             }
 
-    /// Derive automatically a JsonCodec, based of OfJson and ToJson static members
+    /// Derive automatically a RedisCodec, based of OfRedis and ToRedis static members
     let inline redisValueCodec< ^t when (OfRedis or ^t) : (static member OfRedis : ^t * OfRedis -> (RedisValue -> ^t ParseResult)) and (ToRedis or ^t) : (static member ToRedis : ^t * ToRedis -> RedisValue)> : Codec<RedisValue,'t> = ofRedis, toRedis
 
 
     module Codec =
+        open Decode
         /// Turns a Codec into another Codec, by mapping it over an isomorphism.
         let inline invmap (f: 'T -> 'U) (g: 'U -> 'T) (r, w) = (contramap f r, map g w)
 
@@ -193,18 +195,38 @@ module Redis=
 
 
         /// Creates a new Redis key,value pair for a Redis object
-        let inline rpairWith toRedis (key: string) value = key, toRedis value
+        let inline rpairWith toRedis (key: string) value = HashEntry(implicit key, toRedis value) 
+
+        /// Creates a new Redis key,value pair for a Redis object
+        let inline rpair (key: string) value = rpairWith toRedis key value
+        /// Creates a new Redis key,value pair for a Redis object if the value option is present
+        let inline rpairOptWith toRedis (key: string) value = match value with Some value -> (key, toRedis value) | _ -> (null, RedisValue.Null)
+        /// Creates a new Redis key,value pair for a Redis object if the value option is present
+        let inline rpairOpt (key: string) value = rpairOptWith toRedis key value
+
 
         let diApply combiner (remainderFields: SplitCodec<'S, 'f ->'r, 'T>) (currentField: SplitCodec<'S, 'f, 'T>) =
           ( 
               Compose.run (Compose (fst remainderFields: Decoder<'S, 'f -> 'r>) <*> Compose (fst currentField)),
               fun p -> combiner (snd remainderFields p) ((snd currentField) p)
           )
-        /// Gets a value from a Json object
+        /// Gets a value from a Redis object
         let inline rgetWith ofRedis (o: HashEntry list) key =
             match tryFindEntry key o with
             | Some value -> ofRedis value
             | _ -> Decode.Fail.propertyNotFound key o
+        /// Gets a value from a Redis object
+        let inline rget (o: HashEntry list) key = rgetWith ofRedis o key
+
+        // Tries to get a value from a Redis object.
+        /// Returns None if key is not present in the object.
+        let inline rgetOptWith ofRedis (o: HashEntry list) key =
+            match tryFindEntry key o with
+            | Some value -> ofRedis value |> map Some
+            | _ -> Success None
+        /// Tries to get a value from a Redis object.
+        /// Returns None if key is not present in the object.
+        let inline rgetOpt (o: HashEntry list) key = rgetOptWith ofRedis o key
 
         /// <summary>Appends a field mapping to the codec.</summary>
         /// <param name="codec">The codec to be used.</param>
@@ -227,26 +249,41 @@ module Redis=
         /// <returns>The resulting object codec.</returns>
         let inline rfield fieldName (getter: 'T -> 'Value) (rest: SplitCodec<_, _ -> 'Rest, _>) = rfieldWith redisValueCodec fieldName getter rest
 
+        /// <summary>Appends an optional field mapping to the codec.</summary>
+        /// <param name="codec">The codec to be used.</param>
+        /// <param name="fieldName">A string that will be used as key to the field.</param>
+        /// <param name="getter">The field getter function.</param>
+        /// <param name="rest">The other mappings.</param>
+        /// <returns>The resulting object codec.</returns>
+        let inline rfieldOptWith codec fieldName (getter: 'T -> 'Value option) (rest: SplitCodec<_, _ -> 'Rest, _>) =
+            let inline deriveFieldCodecOpt codec prop getter =
+                (
+                    (fun (o: HashEntry list) -> rgetOptWith (fst codec) o prop),
+                    (getter >> function Some (x: 'Value) -> [HashEntry(implicit prop, implicit ((snd codec) x))] | _ -> [])
+                )
+            diApply HashEntryList.union rest (deriveFieldCodecOpt codec fieldName getter)
 
-        // Tries to get a value from a Json object.
-        /// Returns None if key is not present in the object.
-        let inline rgetOptWith ofRedis (o: HashEntry list) key =
-            match tryFindEntry key o with
-            | Some value -> ofRedis value |> map Some
-            | _ -> Success None
+        /// <summary>Appends an optional field mapping to the codec.</summary>
+        /// <param name="fieldName">A string that will be used as key to the field.</param>
+        /// <param name="getter">The field getter function.</param>
+        /// <param name="rest">The other mappings.</param>
+        /// <returns>The resulting object codec.</returns>
+        let inline rfieldOpt fieldName (getter: 'T -> 'Value option) (rest: SplitCodec<_, _ -> 'Rest, _>) = rfieldOptWith redisValueCodec fieldName getter rest
+
           
         module Operators =
 
             /// Creates a new Redis HashEntry for a Redis hash entry list
+            /// 
             let inline (.=) key value = rpair key value
 
             /// Creates a new Redis HashEntry for a Redis hash entry list if the value is present in the option
             let inline (.=?) (key: string) value = rpairOpt key value
 
-            /// Gets a value from a Json object
+            /// Gets a value from a Redis object
             let inline (.@) o key = rget o key
 
-            /// Tries to get a value from a Json object.
+            /// Tries to get a value from a Redis object.
             /// Returns None if key is not present in the object.
             let inline (.@?) o key = rgetOpt o key
             /// <summary>Applies a field mapping to the object codec.</summary>
@@ -280,13 +317,13 @@ module Redis=
             /// Tuple two values.
             let inline (^=) a b = (a, b)
 
-            /// Gets a value from a Json object
+            /// Gets a value from a Redis object
             let inline rgetFromListWith ofRedis (o: list<HashEntry>) key =
               match tryFindEntry key o with
               | Some value -> ofRedis value
               | _ -> Decode.Fail.propertyNotFound key (ofList o)
 
-            /// Tries to get a value from a Json object.
+            /// Tries to get a value from a Redis object.
             /// Returns None if key is not present in the object.
             let inline rgetFromListOptWith ofRedis (o: list<HashEntry>) key =
               match tryFindEntry key o with
