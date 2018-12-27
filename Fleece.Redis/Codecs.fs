@@ -64,69 +64,6 @@ module Redis=
             let propertyNotFound p o = Error (PropertyNotFound (p, o))
             let parseError s v : Result<'t, _> = Error (ParseError (typeof<'t>, s, v))
     open Decode
-    [<RequireQualifiedAccess>]
-    module RedisEncode =
-
-        let boolean        (x: bool          ) :RedisValue = implicit x
-        let int            (x: int           ) :RedisValue = implicit x
-        let int64          (x: int64         ) :RedisValue = implicit x
-        let double         (x: double        ) :RedisValue = implicit x
-        let string         (x: string        ) :RedisValue = implicit x
-        let byteArray      (x: byte array    ) :RedisValue = implicit x
-        let unit           (_: unit          ) :RedisValue = implicit [||]
-
-    [<RequireQualifiedAccess>]
-    module RedisDecode =
-        module Helpers=
-            let inline tryRead x =
-                try
-                  Success (explicit x)
-                with
-                | e -> Decode.Fail.invalidValue x (string e)
-        open Helpers
-        let boolean        (x: RedisValue     ) :bool ParseResult = tryRead x
-        let int            (x: RedisValue     ) :int ParseResult  = tryRead x
-        let int64          (x: RedisValue     ) :int64 ParseResult = tryRead x
-        let double         (x: RedisValue     ) :double ParseResult = tryRead x
-        let string         (x: RedisValue     ) :string ParseResult = tryRead x
-        let byteArray      (x: RedisValue     ) :byte array ParseResult = tryRead x
-        let unit           (x: RedisValue     ) :unit ParseResult = match tryRead x with | Success [||] -> Success () | _ -> Decode.Fail.invalidValue x ("Expected empty array")
-
-    type OfRedis=
-        inherit Default1
-        static member OfRedis (_: bool,       _: OfRedis) = RedisDecode.boolean
-        static member OfRedis (_: int,        _: OfRedis) = RedisDecode.int
-        static member OfRedis (_: int64,      _: OfRedis) = RedisDecode.int64
-        static member OfRedis (_: double,     _: OfRedis) = RedisDecode.double
-        static member OfRedis (_: string,     _: OfRedis) = RedisDecode.string
-        static member OfRedis (_: byte array, _: OfRedis) = RedisDecode.byteArray
-        static member OfRedis (_: unit,       _: OfRedis) = RedisDecode.unit
-
-    type OfRedis with
-        static member inline Invoke (x: RedisValue) : 't ParseResult =
-            let inline iOfRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member OfRedis : ^b * _ -> (RedisValue -> ^b ParseResult)) b, a)
-            iOfRedis (Unchecked.defaultof<OfRedis>, Unchecked.defaultof<'t>) x
-
-    /// Maps Redis to a type
-    let inline ofRedis (x: RedisValue) : 't ParseResult = OfRedis.Invoke x
-
-    type ToRedis =
-        inherit Default1
-        static member ToRedis (x: bool          , _: ToRedis) = RedisEncode.boolean        x
-        static member ToRedis (x: int           , _: ToRedis) = RedisEncode.int            x
-        static member ToRedis (x: int64         , _: ToRedis) = RedisEncode.int64          x
-        static member ToRedis (x: double        , _: ToRedis) = RedisEncode.double         x
-        static member ToRedis (x: string        , _: ToRedis) = RedisEncode.string         x
-        static member ToRedis (x: byte array    , _: ToRedis) = RedisEncode.byteArray      x
-        static member ToRedis (x: unit          , _: ToRedis) = RedisEncode.unit           x
-
-    type ToRedis with
-        static member inline Invoke (x: 't) : RedisValue =
-            let inline iToRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member ToRedis : ^b * _ -> RedisValue) b, a)
-            iToRedis (Unchecked.defaultof<ToRedis>, x)
-
-    let inline toRedis (x: 't) : RedisValue = ToRedis.Invoke x
-    
 
     /// Encodes a value of a generic type 't into a value of raw type 'S.
     type Encoder<'S, 't> = 't -> 'S
@@ -160,10 +97,6 @@ module Redis=
                 Encoder = fun w -> (source.Encoder w ++ alternative.Encoder w)
             }
 
-    /// Derive automatically a RedisCodec, based of OfRedis and ToRedis static members
-    let inline redisValueCodec< ^t when (OfRedis or ^t) : (static member OfRedis : ^t * OfRedis -> (RedisValue -> ^t ParseResult)) and (ToRedis or ^t) : (static member ToRedis : ^t * ToRedis -> RedisValue)> : Codec<RedisValue,'t> = ofRedis, toRedis
-
-
     module Codec =
         /// Turns a Codec into another Codec, by mapping it over an isomorphism.
         let inline invmap (f: 'T -> 'U) (g: 'U -> 'T) (r, w) = (contramap f r, map g w)
@@ -178,6 +111,117 @@ module Redis=
 
         let inline ofConcrete {Decoder = ReaderT d; Encoder = e} = contramap id d, map id (e >> Const.run)
         let inline toConcrete (d: _ -> _, e: _ -> _) = { Decoder = ReaderT (contramap id d); Encoder = Const << map id e }
+
+    [<RequireQualifiedAccess>]
+    module RedisEncode =
+
+        let boolean        (x: bool          ) :RedisValue = implicit x
+        let int            (x: int           ) :RedisValue = implicit x
+        let int64          (x: int64         ) :RedisValue = implicit x
+        let double         (x: double        ) :RedisValue = implicit x
+        let string         (x: string        ) :RedisValue = implicit x
+        let byteArray      (x: byte array    ) :RedisValue = implicit x
+        let unit           (_: unit          ) :RedisValue = implicit [||]
+        let option (encoder: _ -> RedisValue) = function
+            | None   -> RedisValue.Null
+            | Some a -> encoder a
+
+        let nullable    (encoder: _ -> RedisValue) (x: Nullable<'a>) = if x.HasValue then encoder x.Value else RedisValue.Null
+
+
+    [<RequireQualifiedAccess>]
+    module RedisDecode =
+        module Helpers=
+            let inline tryRead x =
+                try
+                  Success (explicit x)
+                with
+                | e -> Decode.Fail.invalidValue x (string e)
+        open Helpers
+        let boolean        (x: RedisValue     ) :bool ParseResult = tryRead x
+        let int            (x: RedisValue     ) :int ParseResult  = tryRead x
+        let int64          (x: RedisValue     ) :int64 ParseResult = tryRead x
+        let double         (x: RedisValue     ) :double ParseResult = tryRead x
+        let string         (x: RedisValue     ) :string ParseResult = tryRead x
+        let byteArray      (x: RedisValue     ) :byte array ParseResult = tryRead x
+        let unit           (x: RedisValue     ) :unit ParseResult = match tryRead x with | Success [||] -> Success () | _ -> Decode.Fail.invalidValue x ("Expected empty array")
+        let option (decoder: RedisValue -> ParseResult<'a>) (x:RedisValue) : ParseResult<'a option> =
+            if x.IsNull then Success None
+            else map Some (decoder x)
+
+        let nullable (decoder: RedisValue -> ParseResult<'a>) (x: RedisValue) : ParseResult<Nullable<'a>> =
+            if x.IsNull then Success (Nullable ())
+            else map Nullable (decoder x)
+
+    type OfRedis=
+        inherit Default1
+        static member OfRedis (_: bool,       _: OfRedis) = RedisDecode.boolean
+        static member OfRedis (_: int,        _: OfRedis) = RedisDecode.int
+        static member OfRedis (_: int64,      _: OfRedis) = RedisDecode.int64
+        static member OfRedis (_: double,     _: OfRedis) = RedisDecode.double
+        static member OfRedis (_: string,     _: OfRedis) = RedisDecode.string
+        static member OfRedis (_: byte array, _: OfRedis) = RedisDecode.byteArray
+        static member OfRedis (_: unit,       _: OfRedis) = RedisDecode.unit
+
+    type OfRedis with
+        static member inline Invoke (x: 'RedisValue) : 't ParseResult =
+            let inline iOfRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member OfRedis : ^b * _ -> ('RedisValue -> ^b ParseResult)) b, a)
+            iOfRedis (Unchecked.defaultof<OfRedis>, Unchecked.defaultof<'t>) x
+
+    type OfRedis with static member inline OfRedis (_: 'a option  , _: OfRedis) : RedisValue -> ParseResult<'a option>   = RedisDecode.option   OfRedis.Invoke
+    type OfRedis with static member inline OfRedis (_: 'a Nullable, _: OfRedis) : RedisValue -> ParseResult<'a Nullable> = RedisDecode.nullable OfRedis.Invoke
+    // Default, for external classes.
+    type OfRedis with
+        static member inline OfRedis (_: 'R, _: Default7) =
+            let codec = (^R : (static member RedisObjCodec : Codec<RObject,'R>) ())
+            codec |> Codec.decode : RObject -> ^R ParseResult
+
+        static member inline OfRedis (_: 'R, _: Default6) =
+            let codec = (^R : (static member RedisObjCodec : ConcreteCodec<_,_,_,'R>) ())
+            codec |> Codec.ofConcrete |> fst : RObject -> ^R ParseResult
+        static member inline OfRedis (_: 'R, _: Default2) = fun rs -> (^R : (static member OfRedis: 'RedisValue -> ^R ParseResult) rs) : ^R ParseResult
+
+
+    /// Maps Redis to a type
+    let inline ofRedis (x: 'RedisValue) : 't ParseResult = OfRedis.Invoke x
+
+    type ToRedis =
+        inherit Default1
+        static member ToRedis (x: bool          , _: ToRedis) = RedisEncode.boolean        x
+        static member ToRedis (x: int           , _: ToRedis) = RedisEncode.int            x
+        static member ToRedis (x: int64         , _: ToRedis) = RedisEncode.int64          x
+        static member ToRedis (x: double        , _: ToRedis) = RedisEncode.double         x
+        static member ToRedis (x: string        , _: ToRedis) = RedisEncode.string         x
+        static member ToRedis (x: byte array    , _: ToRedis) = RedisEncode.byteArray      x
+        static member ToRedis (x: unit          , _: ToRedis) = RedisEncode.unit           x
+
+    type ToRedis with
+        static member inline Invoke (x: 't) : 'RedisValue =
+            let inline iToRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member ToRedis : ^b * _ -> 'RedisValue) b, a)
+            iToRedis (Unchecked.defaultof<ToRedis>, x)
+
+    type ToRedis with
+        static member inline ToRedis (x: 'a option, _: ToRedis) = RedisEncode.option ToRedis.Invoke x
+
+    type ToRedis with
+        static member inline ToRedis (x: 'a Nullable, _: ToRedis) = RedisEncode.nullable ToRedis.Invoke x
+
+    // Default, for external classes.
+    type ToRedis with
+        static member inline ToRedis (t: 'T, _: Default5) =
+            let codec = (^T : (static member RedisObjCodec : Codec<RObject,'T>) ())
+            (codec |> Codec.encode) t
+
+        static member inline ToRedis (t: 'T, _: Default4) =
+            let codec = (^T : (static member RedisObjCodec : ConcreteCodec<_,_,_,'T>) ())
+            (codec |> Codec.ofConcrete |> Codec.encode) t
+        static member inline ToRedis (t: 'T, _: Default2) = (^T : (static member ToRedis : ^T -> 'RedisValue) t)
+    let inline toRedis (x: 't) : 'RedisValue = ToRedis.Invoke x
+    
+    /// Derive automatically a RedisCodec, based of OfRedis and ToRedis static members
+    let inline redisValueCodec< ^t when (OfRedis or ^t) : (static member OfRedis : ^t * OfRedis -> (RedisValue -> ^t ParseResult)) and (ToRedis or ^t) : (static member ToRedis : ^t * ToRedis -> RedisValue)> : Codec<RedisValue,'t> = ofRedis, toRedis
+
+
 
     /// <summary>Initialize the field mappings.</summary>
     /// <param name="f">An object constructor as a curried function.</param>
