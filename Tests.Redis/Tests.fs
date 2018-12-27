@@ -40,7 +40,7 @@ open FsCheck
 open FsCheck.GenOperators
 let personHashEntries = [ HashEntry(implicit "name", implicit "John"); HashEntry(implicit "age", implicit 44) ]
 let person = { Person.Name = "John"; Age = 44 }
-let itemHashEntries = [HashEntry(implicit "id", implicit 11); HashEntry(implicit "brand", implicit "Spinal trap"); HashEntry(implicit "availability", RedisValue.Null)]
+let itemHashEntries = [HashEntry(implicit "id", implicit 11); HashEntry(implicit "brand", implicit "Spinal trap")]
 let item = {Id=11; Brand="Spinal trap"; Availability= None}
 let tests = [
         testList "From Redis" [

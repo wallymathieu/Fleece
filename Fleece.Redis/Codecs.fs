@@ -25,15 +25,8 @@ module Redis=
             let union a b = List.append a b // NOTE: let's start with this, need to verify assumption later
     open Helpers
     type RObject = HashEntry list
-    type RType =
-        | Object = 1
-        | Array  = 2
-        | Number = 3
-        | String = 4
-        | Bool   = 5
 
     type DecodeError =
-        | RedisTypeMismatch of System.Type * RedisValue * RType * RType
         | NullString of System.Type
         | IndexOutOfRange of int * RedisValue
         | InvalidValue of System.Type * RedisValue * string
@@ -49,7 +42,6 @@ module Redis=
             | _                      -> Multiple [x; y]
       override x.ToString () =
             match x with
-            | RedisTypeMismatch (t, v: RedisValue, expected, actual) -> sprintf "%s expected but got %s while decoding %s as %s" (string expected) (string actual) (string v) (string t)
             | NullString t -> sprintf "Expected %s, got null" (string t)
             | IndexOutOfRange (e, a) -> sprintf "Expected array with %s items, was: %s" (string e) (string a)
             | InvalidValue (t, v, s) -> sprintf "Value %s is invalid for %s%s" (string v) (string t) (if String.IsNullOrEmpty s then "" else " " + s)
@@ -82,6 +74,8 @@ module Redis=
         let double         (x: double        ) :RedisValue = implicit x
         let string         (x: string        ) :RedisValue = implicit x
         let byteArray      (x: byte array    ) :RedisValue = implicit x
+        let unit           (_: unit          ) :RedisValue = implicit [||]
+
     [<RequireQualifiedAccess>]
     module RedisDecode =
         module Helpers=
@@ -97,6 +91,7 @@ module Redis=
         let double         (x: RedisValue     ) :double ParseResult = tryRead x
         let string         (x: RedisValue     ) :string ParseResult = tryRead x
         let byteArray      (x: RedisValue     ) :byte array ParseResult = tryRead x
+        let unit           (x: RedisValue     ) :unit ParseResult = match tryRead x with | Success [||] -> Success () | _ -> Decode.Fail.invalidValue x ("Expected empty array")
 
     type OfRedis=
         inherit Default1
@@ -106,6 +101,7 @@ module Redis=
         static member OfRedis (_: double,     _: OfRedis) = RedisDecode.double
         static member OfRedis (_: string,     _: OfRedis) = RedisDecode.string
         static member OfRedis (_: byte array, _: OfRedis) = RedisDecode.byteArray
+        static member OfRedis (_: unit,       _: OfRedis) = RedisDecode.unit
 
     type OfRedis with
         static member inline Invoke (x: RedisValue) : 't ParseResult =
@@ -123,6 +119,7 @@ module Redis=
         static member ToRedis (x: double        , _: ToRedis) = RedisEncode.double         x
         static member ToRedis (x: string        , _: ToRedis) = RedisEncode.string         x
         static member ToRedis (x: byte array    , _: ToRedis) = RedisEncode.byteArray      x
+        static member ToRedis (x: unit          , _: ToRedis) = RedisEncode.unit           x
 
     type ToRedis with
         static member inline Invoke (x: 't) : RedisValue =
