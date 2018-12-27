@@ -106,7 +106,7 @@ module Redis=
         static member OfRedis (_: double,     _: OfRedis) = RedisDecode.double
         static member OfRedis (_: string,     _: OfRedis) = RedisDecode.string
         static member OfRedis (_: byte array, _: OfRedis) = RedisDecode.byteArray
-        //static member OfRedis (_: RedisValue, _: OfRedis) = id
+
     type OfRedis with
         static member inline Invoke (x: RedisValue) : 't ParseResult =
             let inline iOfRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member OfRedis : ^b * _ -> (RedisValue -> ^b ParseResult)) b, a)
@@ -123,7 +123,7 @@ module Redis=
         static member ToRedis (x: double        , _: ToRedis) = RedisEncode.double         x
         static member ToRedis (x: string        , _: ToRedis) = RedisEncode.string         x
         static member ToRedis (x: byte array    , _: ToRedis) = RedisEncode.byteArray      x
-        //static member ToRedis (x: RedisValue    , _: ToRedis) =                            x
+
     type ToRedis with
         static member inline Invoke (x: 't) : RedisValue =
             let inline iToRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member ToRedis : ^b * _ -> RedisValue) b, a)
@@ -180,11 +180,8 @@ module Redis=
         let decode (d: Decoder<'i, 'a>, _) (i: 'i) : ParseResult<'a> = d i
         let encode (_, e: Encoder<'o, 'a>) (a: 'a) : 'o = e a
 
-        let inline toMonoid x = x |> toList
-        let inline ofMonoid (x:KeyValuePair<_,_> list) = x |> (List.map (fun kv->HashEntry(implicit kv.Key,implicit kv.Value)))
-
-        let inline ofConcrete {Decoder = ReaderT d; Encoder = e} = contramap toMonoid d, map ofMonoid (e >> Const.run)
-        let inline toConcrete (d: _ -> _, e: _ -> _) = { Decoder = ReaderT (contramap ofMonoid d); Encoder = Const << map toMonoid e }
+        let inline ofConcrete {Decoder = ReaderT d; Encoder = e} = contramap id d, map id (e >> Const.run)
+        let inline toConcrete (d: _ -> _, e: _ -> _) = { Decoder = ReaderT (contramap id d); Encoder = Const << map id e }
 
     /// <summary>Initialize the field mappings.</summary>
     /// <param name="f">An object constructor as a curried function.</param>
