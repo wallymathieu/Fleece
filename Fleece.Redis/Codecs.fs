@@ -2,7 +2,6 @@
 open FSharpPlus
 open FSharpPlus.Data
 open StackExchange.Redis
-open System.Collections.Generic
 open System
 
 type Default7 = class end
@@ -30,7 +29,7 @@ module Redis=
         | NullString of System.Type
         | IndexOutOfRange of int * RedisValue
         | InvalidValue of System.Type * RedisValue * string
-        | PropertyNotFound of string * (HashEntry list)
+        | PropertyNotFound of string * RObject
         | ParseError of System.Type * exn * string
         | Uncategorized of string
         | Multiple of DecodeError list
@@ -203,22 +202,22 @@ module Redis=
 
 
     /// Gets a value from a Redis object
-    let inline rgetWith ofRedis (o: HashEntry list) key =
+    let inline rgetWith ofRedis (o: RObject) key =
         match tryFindEntry key o with
         | Some value -> ofRedis value
         | _ -> Decode.Fail.propertyNotFound key o
     /// Gets a value from a Redis object
-    let inline rget (o: HashEntry list) key = rgetWith ofRedis o key
+    let inline rget (o: RObject) key = rgetWith ofRedis o key
 
     // Tries to get a value from a Redis object.
     /// Returns None if key is not present in the object.
-    let inline rgetOptWith ofRedis (o: HashEntry list) key =
+    let inline rgetOptWith ofRedis (o: RObject) key =
         match tryFindEntry key o with
         | Some value -> ofRedis value |> map Some
         | _ -> Success None
     /// Tries to get a value from a Redis object.
     /// Returns None if key is not present in the object.
-    let inline rgetOpt (o: HashEntry list) key = rgetOptWith ofRedis o key
+    let inline rgetOpt (o: RObject) key = rgetOptWith ofRedis o key
 
     /// <summary>Appends a field mapping to the codec.</summary>
     /// <param name="codec">The codec to be used.</param>
@@ -229,7 +228,7 @@ module Redis=
     let inline rfieldWith codec fieldName (getter: 'T -> 'Value) (rest: SplitCodec<_, _ -> 'Rest, _>) =
         let inline deriveFieldCodec codec prop getter =
             (
-                (fun (o: HashEntry list) -> rgetWith (fst codec) o prop),
+                (fun (o: RObject) -> rgetWith (fst codec) o prop),
                 (getter >> fun (x: 'Value) -> [HashEntry(implicit prop, ((snd codec) x))])
             )
         diApply HashEntryList.union rest (deriveFieldCodec codec fieldName getter)
@@ -250,7 +249,7 @@ module Redis=
     let inline rfieldOptWith codec fieldName (getter: 'T -> 'Value option) (rest: SplitCodec<_, _ -> 'Rest, _>) =
         let inline deriveFieldCodecOpt codec prop getter =
             (
-                (fun (o: HashEntry list) -> rgetOptWith (fst codec) o prop),
+                (fun (o: RObject) -> rgetOptWith (fst codec) o prop),
                 (getter >> function Some (x: 'Value) -> [HashEntry(implicit prop, ((snd codec) x))] | _ -> [])
             )
         diApply HashEntryList.union rest (deriveFieldCodecOpt codec fieldName getter)
