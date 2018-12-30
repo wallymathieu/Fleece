@@ -12,11 +12,11 @@ type Person = {
 type Person with
     static member Create name age = { Person.Name = name; Age = age }
 
-    static member OfRedis o = 
+    static member OfRedis o : Person ParseResult= 
         Person.Create <!> (o .@ "name") <*> (o .@ "age")
         
 
-    static member ToRedis (x: Person) =
+    static member ToRedis (x: Person) : RObject=
         [ 
             "name" .= x.Name
             "age" .= x.Age

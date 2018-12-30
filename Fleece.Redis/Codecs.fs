@@ -216,10 +216,10 @@ module Redis=
             let codec = (^T : (static member RedisObjCodec : ConcreteCodec<_,_,_,'T>) ())
             (codec |> Codec.ofConcrete |> Codec.encode) t
         static member inline ToRedis (t: 'T, _: Default2) = (^T : (static member ToRedis : ^T -> 'RedisValue) t)
-    let inline toRedis (x: 't) : 'RedisValue = ToRedis.Invoke x
+    let inline toRedis (x: 't) : RedisValue = ToRedis.Invoke x
     
     /// Derive automatically a RedisCodec, based of OfRedis and ToRedis static members
-    let inline redisValueCodec< ^t when (OfRedis or ^t) : (static member OfRedis : ^t * OfRedis -> (RedisValue -> ^t ParseResult)) and (ToRedis or ^t) : (static member ToRedis : ^t * ToRedis -> RedisValue)> : Codec<RedisValue,'t> = ofRedis, toRedis
+    let inline redisValueCodec<'RedisValue, ^t when (OfRedis or ^t) : (static member OfRedis : ^t * OfRedis -> ('RedisValue -> ^t ParseResult)) and (ToRedis or ^t) : (static member ToRedis : ^t * ToRedis -> 'RedisValue)> : Codec<'RedisValue,'t> = OfRedis.Invoke, ToRedis.Invoke
 
 
 
@@ -261,7 +261,7 @@ module Redis=
         | _ -> Success None
     /// Tries to get a value from a Redis object.
     /// Returns None if key is not present in the object.
-    let inline rgetOpt (o: RObject) key = rgetOptWith ofRedis o key
+    let inline rgetOpt (o: RObject) key = rgetOptWith OfRedis.Invoke o key
 
     /// <summary>Appends a field mapping to the codec.</summary>
     /// <param name="codec">The codec to be used.</param>
