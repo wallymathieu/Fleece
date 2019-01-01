@@ -1,4 +1,4 @@
-﻿namespace Fleece.Redis
+namespace Fleece.Redis
 open FSharpPlus
 open FSharpPlus.Data
 open StackExchange.Redis
@@ -168,8 +168,8 @@ module Redis=
             let inline iOfRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member OfRedis : ^b * _ -> ('RedisValue -> ^b ParseResult)) b, a)
             iOfRedis (Unchecked.defaultof<OfRedis>, Unchecked.defaultof<'t>) x
 
-    type OfRedis with static member inline OfRedis (_: 'a option  , _: OfRedis) : RedisValue -> ParseResult<'a option>   = RedisDecode.option   OfRedis.Invoke
-    type OfRedis with static member inline OfRedis (_: 'a Nullable, _: OfRedis) : RedisValue -> ParseResult<'a Nullable> = RedisDecode.nullable OfRedis.Invoke
+    //type OfRedis with static member inline OfRedis (_: 'a option  , _: OfRedis) : RedisValue -> ParseResult<'a option>   = RedisDecode.option   OfRedis.Invoke
+    //type OfRedis with static member inline OfRedis (_: 'a Nullable, _: OfRedis) : RedisValue -> ParseResult<'a Nullable> = RedisDecode.nullable OfRedis.Invoke
     // Default, for external classes.
     type OfRedis with
         static member inline OfRedis (_: 'R, _: Default7) =
@@ -200,28 +200,23 @@ module Redis=
             let inline iToRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member ToRedis : ^b * _ -> 'RedisValue) b, a)
             iToRedis (Unchecked.defaultof<ToRedis>, x)
 
-    type ToRedis with
-        static member inline ToRedis (x: 'a option, _: ToRedis) = RedisEncode.option ToRedis.Invoke x
+    //type ToRedis with static member inline ToRedis (x: 'a option, _: ToRedis) = RedisEncode.option ToRedis.Invoke x
 
-    type ToRedis with
-        static member inline ToRedis (x: 'a Nullable, _: ToRedis) = RedisEncode.nullable ToRedis.Invoke x
+    //type ToRedis with static member inline ToRedis (x: 'a Nullable, _: ToRedis) = RedisEncode.nullable ToRedis.Invoke x
 
     // Default, for external classes.
     type ToRedis with
-        static member inline ToRedis (t: 'T, _: Default5) =
+        static member inline ToRedis (t: 'T, _: Default5) : RObject=
             let codec = (^T : (static member RedisObjCodec : Codec<RObject,'T>) ())
-            (codec |> Codec.encode) t
-
-        static member inline ToRedis (t: 'T, _: Default4) =
+            (codec |> Codec.encode) t        
+        static member inline ToRedis (t: 'T, _: Default4) : RObject=
             let codec = (^T : (static member RedisObjCodec : ConcreteCodec<_,_,_,'T>) ())
             (codec |> Codec.ofConcrete |> Codec.encode) t
-        static member inline ToRedis (t: 'T, _: Default2) = (^T : (static member ToRedis : ^T -> 'RedisValue) t)
-    let inline toRedis (x: 't) : RedisValue = ToRedis.Invoke x
+        static member inline ToRedis (t: 'T, _: Default2) :'RedisValue = (^T : (static member ToRedis : ^T -> 'RedisValue) t)
+    let inline toRedis (x: 't) : 'RedisValue = ToRedis.Invoke x
     
     /// Derive automatically a RedisCodec, based of OfRedis and ToRedis static members
-    let inline redisValueCodec<'RedisValue, ^t when (OfRedis or ^t) : (static member OfRedis : ^t * OfRedis -> ('RedisValue -> ^t ParseResult)) and (ToRedis or ^t) : (static member ToRedis : ^t * ToRedis -> 'RedisValue)> : Codec<'RedisValue,'t> = OfRedis.Invoke, ToRedis.Invoke
-
-
+    let inline redisValueCodec< ^t when (OfRedis or ^t) : (static member OfRedis : ^t * OfRedis -> (RedisValue -> ^t ParseResult)) and (ToRedis or ^t) : (static member ToRedis : ^t * ToRedis -> RedisValue)> : Codec<RedisValue,'t> = OfRedis.Invoke, ToRedis.Invoke
 
     /// <summary>Initialize the field mappings.</summary>
     /// <param name="f">An object constructor as a curried function.</param>
@@ -235,27 +230,27 @@ module Redis=
       )
 
     /// Creates a new Redis key,value pair for a Redis object
-    let inline rpairWith toRedis (key: string) value = HashEntry(implicit key, toRedis value) 
+    let inline rpairWith (toRedis: _ -> RedisValue) (key: string) value = HashEntry(implicit key, toRedis value) 
 
     /// Creates a new Redis key,value pair for a Redis object
-    let inline rpair (key: string) value = rpairWith toRedis key value
+    let inline rpair (key: string) value = rpairWith ToRedis.Invoke key value
     /// Creates a new Redis key,value pair for a Redis object if the value option is present
-    let inline rpairOptWith toRedis (key: string) value = match value with Some value -> (key, toRedis value) | _ -> (null, RedisValue.Null)
+    let inline rpairOptWith (toRedis: _ -> RedisValue) (key: string) value = match value with Some value -> (key, toRedis value) | _ -> (null, RedisValue.Null)
     /// Creates a new Redis key,value pair for a Redis object if the value option is present
-    let inline rpairOpt (key: string) value = rpairOptWith toRedis key value
+    let inline rpairOpt (key: string) value = rpairOptWith ToRedis.Invoke key value
 
 
     /// Gets a value from a Redis object
-    let inline rgetWith ofRedis (o: RObject) key =
+    let inline rgetWith (ofRedis: RedisValue -> _) (o: RObject) key =
         match tryFindEntry key o with
         | Some value -> ofRedis value
         | _ -> Decode.Fail.propertyNotFound key o
     /// Gets a value from a Redis object
-    let inline rget (o: RObject) key = rgetWith ofRedis o key
+    let inline rget (o: RObject) key = rgetWith OfRedis.Invoke o key
 
     // Tries to get a value from a Redis object.
     /// Returns None if key is not present in the object.
-    let inline rgetOptWith ofRedis (o: RObject) key =
+    let inline rgetOptWith (ofRedis: RedisValue -> _) (o: RObject) key =
         match tryFindEntry key o with
         | Some value -> ofRedis value |> map Some
         | _ -> Success None
