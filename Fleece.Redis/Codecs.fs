@@ -153,70 +153,49 @@ module Redis=
             if x.IsNull then Success (Nullable ())
             else map Nullable (decoder x)
 
-    type OfRedis=
+    type OfRedisValue=
         inherit Default1
-        static member OfRedis (_: bool,       _: OfRedis) = RedisDecode.boolean
-        static member OfRedis (_: int,        _: OfRedis) = RedisDecode.int
-        static member OfRedis (_: int64,      _: OfRedis) = RedisDecode.int64
-        static member OfRedis (_: double,     _: OfRedis) = RedisDecode.double
-        static member OfRedis (_: string,     _: OfRedis) = RedisDecode.string
-        static member OfRedis (_: byte array, _: OfRedis) = RedisDecode.byteArray
-        static member OfRedis (_: unit,       _: OfRedis) = RedisDecode.unit
+        static member OfRedis (_: bool,       _: OfRedisValue) = RedisDecode.boolean
+        static member OfRedis (_: int,        _: OfRedisValue) = RedisDecode.int
+        static member OfRedis (_: int64,      _: OfRedisValue) = RedisDecode.int64
+        static member OfRedis (_: double,     _: OfRedisValue) = RedisDecode.double
+        static member OfRedis (_: string,     _: OfRedisValue) = RedisDecode.string
+        static member OfRedis (_: byte array, _: OfRedisValue) = RedisDecode.byteArray
+        static member OfRedis (_: unit,       _: OfRedisValue) = RedisDecode.unit
 
-    type OfRedis with
-        static member inline Invoke (x: 'RedisValue) : 't ParseResult =
-            let inline iOfRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member OfRedis : ^b * _ -> ('RedisValue -> ^b ParseResult)) b, a)
-            iOfRedis (Unchecked.defaultof<OfRedis>, Unchecked.defaultof<'t>) x
+    type OfRedisValue with
+        static member inline Invoke (x: RedisValue) : 't ParseResult =
+            let inline iOfRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member OfRedis : ^b * _ -> (RedisValue -> ^b ParseResult)) b, a)
+            iOfRedis (Unchecked.defaultof<OfRedisValue>, Unchecked.defaultof<'t>) x
 
-    type OfRedis with static member inline OfRedis (_: 'a option  , _: OfRedis) : RedisValue -> ParseResult<'a option>   = RedisDecode.option   OfRedis.Invoke
-    type OfRedis with static member inline OfRedis (_: 'a Nullable, _: OfRedis) : RedisValue -> ParseResult<'a Nullable> = RedisDecode.nullable OfRedis.Invoke
-    // Default, for external classes.
-    type OfRedis with
-        static member inline OfRedis (_: 'R, _: Default7) =
-            let codec = (^R : (static member RedisObjCodec : Codec<RObject,'R>) ())
-            codec |> Codec.decode : RObject -> ^R ParseResult
-
-        static member inline OfRedis (_: 'R, _: Default6) =
-            let codec = (^R : (static member RedisObjCodec : ConcreteCodec<_,_,_,'R>) ())
-            codec |> Codec.ofConcrete |> fst : RObject -> ^R ParseResult
-        static member inline OfRedis (_: 'R, _: Default2) = fun rs -> (^R : (static member OfRedis: 'RedisValue -> ^R ParseResult) rs) : ^R ParseResult
-
+    type OfRedisValue with static member inline OfRedis (_: 'a option  , _: OfRedisValue) : RedisValue -> ParseResult<'a option>   = RedisDecode.option   OfRedisValue.Invoke
+    type OfRedisValue with static member inline OfRedis (_: 'a Nullable, _: OfRedisValue) : RedisValue -> ParseResult<'a Nullable> = RedisDecode.nullable OfRedisValue.Invoke
 
     /// Maps Redis to a type
-    let inline ofRedis (x: 'RedisValue) : 't ParseResult = OfRedis.Invoke x
-
-    type ToRedis =
+    let inline ofRedisValue (x: RedisValue) : 't ParseResult = OfRedisValue.Invoke x
+    type ToRedisValue =
         inherit Default1
-        static member ToRedis (x: bool          , _: ToRedis) = RedisEncode.boolean        x
-        static member ToRedis (x: int           , _: ToRedis) = RedisEncode.int            x
-        static member ToRedis (x: int64         , _: ToRedis) = RedisEncode.int64          x
-        static member ToRedis (x: double        , _: ToRedis) = RedisEncode.double         x
-        static member ToRedis (x: string        , _: ToRedis) = RedisEncode.string         x
-        static member ToRedis (x: byte array    , _: ToRedis) = RedisEncode.byteArray      x
-        static member ToRedis (x: unit          , _: ToRedis) = RedisEncode.unit           x
+        static member ToRedis (x: bool          , _: ToRedisValue) = RedisEncode.boolean        x
+        static member ToRedis (x: int           , _: ToRedisValue) = RedisEncode.int            x
+        static member ToRedis (x: int64         , _: ToRedisValue) = RedisEncode.int64          x
+        static member ToRedis (x: double        , _: ToRedisValue) = RedisEncode.double         x
+        static member ToRedis (x: string        , _: ToRedisValue) = RedisEncode.string         x
+        static member ToRedis (x: byte array    , _: ToRedisValue) = RedisEncode.byteArray      x
+        static member ToRedis (x: unit          , _: ToRedisValue) = RedisEncode.unit           x
 
-    type ToRedis with
-        static member inline Invoke (x: 't) : 'RedisValue =
-            let inline iToRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member ToRedis : ^b * _ -> 'RedisValue) b, a)
-            iToRedis (Unchecked.defaultof<ToRedis>, x)
+    type ToRedisValue with
+        static member inline Invoke (x: 't) : RedisValue =
+            let inline iToRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member ToRedis : ^b * _ -> RedisValue) b, a)
+            iToRedis (Unchecked.defaultof<ToRedisValue>, x)
 
-    type ToRedis with static member inline ToRedis (x: 'a option, _: ToRedis) = RedisEncode.option ToRedis.Invoke x
+    type ToRedisValue with static member inline ToRedis (x: 'a option, _: ToRedisValue) = RedisEncode.option ToRedisValue.Invoke x
 
-    type ToRedis with static member inline ToRedis (x: 'a Nullable, _: ToRedis) = RedisEncode.nullable ToRedis.Invoke x
+    type ToRedisValue with static member inline ToRedis (x: 'a Nullable, _: ToRedisValue) = RedisEncode.nullable ToRedisValue.Invoke x
 
-    // Default, for external classes.
-    type ToRedis with
-        static member inline ToRedis (t: 'T, _: Default5) : RObject=
-            let codec = (^T : (static member RedisObjCodec : Codec<RObject,'T>) ())
-            (codec |> Codec.encode) t        
-        static member inline ToRedis (t: 'T, _: Default4) : RObject=
-            let codec = (^T : (static member RedisObjCodec : ConcreteCodec<_,_,_,'T>) ())
-            (codec |> Codec.ofConcrete |> Codec.encode) t
-        static member inline ToRedis (t: 'T, _: Default2) :'RedisValue = (^T : (static member ToRedis : ^T -> 'RedisValue) t)
-    let inline toRedis (x: 't) : 'RedisValue = ToRedis.Invoke x
+    let inline toRedisValue (x: 't) : RedisValue = ToRedisValue.Invoke x
     
     /// Derive automatically a RedisCodec, based of OfRedis and ToRedis static members
-    let inline redisValueCodec< ^t when (OfRedis or ^t) : (static member OfRedis : ^t * OfRedis -> (RedisValue -> ^t ParseResult)) and (ToRedis or ^t) : (static member ToRedis : ^t * ToRedis -> RedisValue)> : Codec<RedisValue,'t> = OfRedis.Invoke, ToRedis.Invoke
+    let inline redisValueCodec< ^t when (OfRedisValue or ^t) : (static member OfRedis : ^t * OfRedisValue -> (RedisValue -> ^t ParseResult)) and (ToRedisValue or ^t) : (static member ToRedis : ^t * ToRedisValue -> RedisValue)> : Codec<RedisValue,'t> = OfRedisValue.Invoke, ToRedisValue.Invoke
 
     /// <summary>Initialize the field mappings.</summary>
     /// <param name="f">An object constructor as a curried function.</param>
@@ -233,11 +212,11 @@ module Redis=
     let inline rpairWith (toRedis: _ -> RedisValue) (key: string) value = HashEntry(implicit key, toRedis value) 
 
     /// Creates a new Redis key,value pair for a Redis object
-    let inline rpair (key: string) value = rpairWith ToRedis.Invoke key value
+    let inline rpair (key: string) value = rpairWith ToRedisValue.Invoke key value
     /// Creates a new Redis key,value pair for a Redis object if the value option is present
     let inline rpairOptWith (toRedis: _ -> RedisValue) (key: string) value = match value with Some value -> (key, toRedis value) | _ -> (null, RedisValue.Null)
     /// Creates a new Redis key,value pair for a Redis object if the value option is present
-    let inline rpairOpt (key: string) value = rpairOptWith ToRedis.Invoke key value
+    let inline rpairOpt (key: string) value = rpairOptWith ToRedisValue.Invoke key value
 
 
     /// Gets a value from a Redis object
@@ -246,7 +225,7 @@ module Redis=
         | Some value -> ofRedis value
         | _ -> Decode.Fail.propertyNotFound key o
     /// Gets a value from a Redis object
-    let inline rget (o: RObject) key = rgetWith OfRedis.Invoke o key
+    let inline rget (o: RObject) key = rgetWith OfRedisValue.Invoke o key
 
     // Tries to get a value from a Redis object.
     /// Returns None if key is not present in the object.
@@ -256,7 +235,7 @@ module Redis=
         | _ -> Success None
     /// Tries to get a value from a Redis object.
     /// Returns None if key is not present in the object.
-    let inline rgetOpt (o: RObject) key = rgetOptWith OfRedis.Invoke o key
+    let inline rgetOpt (o: RObject) key = rgetOptWith OfRedisValue.Invoke o key
 
     /// <summary>Appends a field mapping to the codec.</summary>
     /// <param name="codec">The codec to be used.</param>
@@ -347,21 +326,21 @@ module Operators =
     let inline (^=) a b = (a, b)
 
     /// Gets a value from a Redis object
-    let inline rgetFromListWith ofRedis (o: list<HashEntry>) key =
+    let inline rgetFromListWith ofRedis (o: RObject) key =
       match tryFindEntry key o with
       | Some value -> ofRedis value
       | _ -> Decode.Fail.propertyNotFound key (ofList o)
 
     /// Tries to get a value from a Redis object.
     /// Returns None if key is not present in the object.
-    let inline rgetFromListOptWith ofRedis (o: list<HashEntry>) key =
+    let inline rgetFromListOptWith ofRedis (o: RObject) key =
       match tryFindEntry key o with
       | Some value -> ofRedis value |> map Some
       | _ -> Ok None
 
     let inline roptWith codec prop getter =
       {
-          Decoder = ReaderT (fun (o: list<HashEntry>) -> rgetFromListOptWith (fst codec) o prop)
+          Decoder = ReaderT (fun (o: RObject) -> rgetFromListOptWith (fst codec) o prop)
           Encoder = fun x -> Const (match getter x with Some (x: 'Value) -> [HashEntry (implicit prop, (snd codec) x)] | _ -> [])
       }
 
@@ -370,7 +349,7 @@ module Operators =
 
     let inline rreqWith codec (prop: string) (getter: 'T -> 'Value option) =
       {
-          Decoder = ReaderT (fun (o: list<HashEntry>) -> rgetFromListWith (fst codec) o prop)
+          Decoder = ReaderT (fun (o: RObject) -> rgetFromListWith (fst codec) o prop)
           Encoder = fun x -> Const (match getter x with Some (x: 'Value) -> [HashEntry (implicit prop, (snd codec) x)] | _ -> [])
       }
 

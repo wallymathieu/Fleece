@@ -27,13 +27,18 @@ type Item = {
     Brand: string
     Availability: string option
 }
+module CompilationTest=
+    let stringRedis : RedisValue = toRedisValue "1"
+    let intRedis : RedisValue = toRedisValue 1
+    let ofIntRedis : int ParseResult = ofRedisValue intRedis
+    let ofStringRedis : string ParseResult = ofRedisValue stringRedis
 
 type Item with
     static member RedisObjCodec =
         fun id brand availability -> { Item.Id = id; Brand = brand; Availability = availability }
-        <!> rreq  "id"          (fun x -> Some x.Id     )
+        <!> rreq   "id"          (fun x -> Some x.Id     )
         <*> rreq  "brand"       (fun x -> Some x.Brand  )
-        <*> ropt "availability" (fun x -> x.Availability)
+        <*> ropt  "availability" (fun x -> x.Availability)
         |> Codec.ofConcrete
 
 open FsCheck
