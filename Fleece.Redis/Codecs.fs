@@ -168,8 +168,8 @@ module Redis=
             let inline iOfRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member OfRedis : ^b * _ -> ('RedisValue -> ^b ParseResult)) b, a)
             iOfRedis (Unchecked.defaultof<OfRedis>, Unchecked.defaultof<'t>) x
 
-    //type OfRedis with static member inline OfRedis (_: 'a option  , _: OfRedis) : RedisValue -> ParseResult<'a option>   = RedisDecode.option   OfRedis.Invoke
-    //type OfRedis with static member inline OfRedis (_: 'a Nullable, _: OfRedis) : RedisValue -> ParseResult<'a Nullable> = RedisDecode.nullable OfRedis.Invoke
+    type OfRedis with static member inline OfRedis (_: 'a option  , _: OfRedis) : RedisValue -> ParseResult<'a option>   = RedisDecode.option   OfRedis.Invoke
+    type OfRedis with static member inline OfRedis (_: 'a Nullable, _: OfRedis) : RedisValue -> ParseResult<'a Nullable> = RedisDecode.nullable OfRedis.Invoke
     // Default, for external classes.
     type OfRedis with
         static member inline OfRedis (_: 'R, _: Default7) =
@@ -200,9 +200,9 @@ module Redis=
             let inline iToRedis (a: ^a, b: ^b) = ((^a or ^b) : (static member ToRedis : ^b * _ -> 'RedisValue) b, a)
             iToRedis (Unchecked.defaultof<ToRedis>, x)
 
-    //type ToRedis with static member inline ToRedis (x: 'a option, _: ToRedis) = RedisEncode.option ToRedis.Invoke x
+    type ToRedis with static member inline ToRedis (x: 'a option, _: ToRedis) = RedisEncode.option ToRedis.Invoke x
 
-    //type ToRedis with static member inline ToRedis (x: 'a Nullable, _: ToRedis) = RedisEncode.nullable ToRedis.Invoke x
+    type ToRedis with static member inline ToRedis (x: 'a Nullable, _: ToRedis) = RedisEncode.nullable ToRedis.Invoke x
 
     // Default, for external classes.
     type ToRedis with
