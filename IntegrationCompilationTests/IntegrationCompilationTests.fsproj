@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Fleece.SystemJson\Fleece.SystemJson.fsproj" />
+    <ProjectReference Include="..\Fleece.SystemTextJson\Fleece.SystemTextJson.fsproj" />
     <ProjectReference Include="..\Fleece.FSharpData\Fleece.FSharpData.fsproj" />
     <ProjectReference Include="..\Fleece.NewtonsoftJson\Fleece.NewtonsoftJson.fsproj" />
   </ItemGroup>

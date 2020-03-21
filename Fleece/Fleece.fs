@@ -165,13 +165,12 @@ module Newtonsoft =
 module SystemJson =
     
     open System.Json
-
     type JsonObject with
         member x.AsReadOnlyDictionary () = (x :> IDictionary<string, JsonValue>) |> Dict.toIReadOnlyDictionary
         static member GetValues (x: JsonObject) = x.AsReadOnlyDictionary ()
 
     let jsonObjectGetValues (x: JsonObject) = JsonObject.GetValues x
-
+    
     type private JsonHelpers () =
         static member create (x: decimal) = JsonPrimitive x :> JsonValue
         static member create (x: Double ) = JsonPrimitive x :> JsonValue
@@ -210,8 +209,63 @@ module SystemJson =
     let inline JString (x: string) = if isNull x then JNull else JsonPrimitive x :> JsonValue
     let inline JNumber (x: decimal) = JsonPrimitive x :> JsonValue
 
-    #endif
+#endif
+#if SYSTEMTEXTJSON
 
+module SystemTextJson =
+
+    open System.Text.Json
+
+    type JsonObject = JsonNode
+    type JsonValue = JsonNode
+
+    type JsonNode with
+        member x.AsReadOnlyDictionary () = [for v in x.EnumerateObject() do yield (v.Name, v.Value) ] 
+                                           |> Map.ofList
+                                           |> Dict.toIReadOnlyDictionary
+        static member GetValues (x: JsonNode) = x.AsReadOnlyDictionary ()
+
+    let jsonObjectGetValues (x: JsonObject) = JsonObject.GetValues x
+
+    type private JsonHelpers () =
+        static member create (x: decimal):JsonNode = implicit x
+        static member create (x: Double ):JsonNode = implicit x
+        static member create (x: Single ):JsonNode = implicit x
+        static member create (x: int    ):JsonNode = implicit x
+        static member create (x: uint32 ):JsonNode = implicit x
+        static member create (x: int64  ):JsonNode = implicit x
+        static member create (x: uint64 ):JsonNode = implicit x
+        static member create (x: int16  ):JsonNode = implicit x
+        static member create (x: uint16 ):JsonNode = implicit x
+        static member create (x: byte   ):JsonNode = implicit x
+        static member create (x: sbyte  ):JsonNode = implicit x
+        static member create (x: char   ):JsonNode = implicit <| string x
+        static member create (x: Guid   ):JsonNode = implicit <| string x
+
+
+    // pseudo-AST, wrapping JsonValue subtypes:
+
+    let (|JArray|JObject|JNumber|JBool|JString|JNull|) (o: JsonValue) =
+        match o with
+        | null -> JNull
+        | :? JsonArray  as x -> JArray ((x :> JsonValue IList) |> IList.toIReadOnlyList)
+        | :? JsonObject as x -> JObject (x.AsReadOnlyDictionary ())
+        | :? JsonPrimitive as x ->
+            match x.JsonType with
+            | JsonType.Number  -> JNumber x
+            | JsonType.Boolean -> JBool   (implicit x: bool)
+            | JsonType.String  -> JString (implicit x: string)
+            | _ -> failwithf "Invalid JsonType %A for primitive %A" x.JsonType x
+        | _ -> failwithf "Invalid JsonValue %A" o
+
+    let inline JArray (x: JsonValue IReadOnlyList) = JsonArray x :> JsonValue
+    let inline JObject (x: IReadOnlyDictionary<string, JsonValue>) = JsonObject x :> JsonValue
+    let inline JBool (x: bool) = JsonPrimitive x :> JsonValue
+    let JNull : JsonValue = null
+    let inline JString (x: string) = if isNull x then JNull else JsonPrimitive x :> JsonValue
+    let inline JNumber (x: decimal) = JsonPrimitive x :> JsonValue
+
+#endif
     // Deserializing:
 
     type JType =
@@ -356,7 +410,24 @@ module SystemJson =
                     | _ -> Decode.Fail.objExpected o
 
         #endif
+        #if SYSTEMTEXTJSON
 
+        let inline tryRead x =
+            match x with
+            | JNumber j ->
+                try
+                    Success (implicit j)
+                with e -> Decode.Fail.invalidValue j (string e)
+            | js -> Decode.Fail.numExpected js
+
+        type JsonHelpers with
+            static member inline jsonObjectOfJson =
+                fun (o: JsonValue) ->
+                    match box o with
+                    | :? JsonObject as x -> Success x
+                    | _ -> Decode.Fail.objExpected o
+
+        #endif
     open Helpers
 
     /// Encodes a value of a generic type 't into a value of raw type 'S.
