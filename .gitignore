@@ -8,3 +8,6 @@ packages/*
 .vs/
 .idea/
 
+
+.ionide/
+

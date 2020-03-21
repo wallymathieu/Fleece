@@ -17,6 +17,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "IntegrationCompilationTests
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Fleece.SystemJson", "Fleece.SystemJson\Fleece.SystemJson.fsproj", "{632614D7-05B6-4023-9D24-C1C084DB0233}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpTests", "Tests.CSharp\Tests.CSharp.csproj", "{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +113,18 @@ Global
 		{632614D7-05B6-4023-9D24-C1C084DB0233}.Release|x64.Build.0 = Release|Any CPU
 		{632614D7-05B6-4023-9D24-C1C084DB0233}.Release|x86.ActiveCfg = Release|Any CPU
 		{632614D7-05B6-4023-9D24-C1C084DB0233}.Release|x86.Build.0 = Release|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Debug|x64.Build.0 = Debug|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Debug|x86.Build.0 = Debug|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Release|x64.ActiveCfg = Release|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Release|x64.Build.0 = Release|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Release|x86.ActiveCfg = Release|Any CPU
+		{7FA7A89E-95FA-4EEC-B9AB-88D9E6C138C3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
