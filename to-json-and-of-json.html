@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>to-json-and-of-json</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="Mauricio Scheffer,Lev Gorodinski,Oskar Gewalli, Gustavo P. Leon">
+
+    <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
+
+    <link type="text/css" rel="stylesheet" href="/Fleece/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="/Fleece/content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="/Fleece/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="/Fleece/content/fsdocs-tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <!-- END SEARCH BOX: this adds support for the search box -->
+    
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <a href="https://github.com/fsprojects/Fleece/"><img id="fsdocs-logo" src="content/img/logo.svg" /></a>
+            <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+            <div id="header">
+                <div class="searchbox" id="fsdocs-searchbox">
+                    <label for="search-by">
+                        <i class="fas fa-search"></i>
+                    </label>
+                    <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                    <span data-search-clear="">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- END SEARCH BOX: this adds support for the search box -->
+            <ul class="navbar-nav">
+                <li class="nav-header">Links</li>
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/Fleece/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/Fleece/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/Fleece/">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/codec.html">
+    codec
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/license.html">
+    license
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/release-notes.html">
+    release-notes
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/comparison-with-json-net.html">
+    comparison-with-json-net
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/giraffe.html">
+    giraffe
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/suave.html">
+    suave
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/combinators.html">
+    combinators
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/to-json-and-of-json.html">
+    to-json-and-of-json
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="masthead">
+            <h3 class="muted"><a href="https://github.com/fsprojects/Fleece/">Fleece</a></h3>
+        </div>
+        <hr />
+        <div class="container" id="fsdocs-content">
+            <h2><a name="ToJson-and-OfJson" class="anchor" href="#ToJson-and-OfJson">ToJson and OfJson</a></h2>
+<p>In order to parse or encode instances into Json you can define static members</p>
+<p>For example, given this data type:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="rt">Person</span> <span class="o">=</span> <span class="pn">{</span>
+    <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="prop">Name</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="rt">string</span>
+    <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="prop">Age</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="vt">int</span>
+    <span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="prop">Children</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs3', 9)" onmouseover="showTip(event, 'fs3', 9)" class="rt">Person</span> <span onmouseout="hideTip(event, 'fs9', 10)" onmouseover="showTip(event, 'fs9', 10)" class="rt">list</span>
+<span class="pn">}</span>
+</code></pre>
+<p>You can map it to JSON like this:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs3', 11)" onmouseover="showTip(event, 'fs3', 11)" class="rt">Person</span> <span class="k">with</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="fn">ToJson</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs10', 12)" onmouseover="showTip(event, 'fs10', 12)" class="fn">x</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs3', 13)" onmouseover="showTip(event, 'fs3', 13)" class="rt">Person</span><span class="pn">)</span> <span class="o">=</span>
+        <span class="id">jobj</span> <span class="pn">[</span>
+            <span class="s">&quot;name&quot;</span> <span class="pn">.</span><span class="o">=</span> <span onmouseout="hideTip(event, 'fs10', 14)" onmouseover="showTip(event, 'fs10', 14)" class="id">x</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs4', 15)" onmouseover="showTip(event, 'fs4', 15)" class="id">Name</span>
+            <span class="s">&quot;age&quot;</span> <span class="pn">.</span><span class="o">=</span> <span onmouseout="hideTip(event, 'fs10', 16)" onmouseover="showTip(event, 'fs10', 16)" class="id">x</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 17)" onmouseover="showTip(event, 'fs6', 17)" class="id">Age</span>
+            <span class="s">&quot;children&quot;</span> <span class="pn">.</span><span class="o">=</span> <span onmouseout="hideTip(event, 'fs10', 18)" onmouseover="showTip(event, 'fs10', 18)" class="id">x</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs8', 19)" onmouseover="showTip(event, 'fs8', 19)" class="id">Children</span>
+        <span class="pn">]</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs11', 20)" onmouseover="showTip(event, 'fs11', 20)" class="id">p</span> <span class="o">=</span>
+    <span class="pn">{</span> <span onmouseout="hideTip(event, 'fs3', 21)" onmouseover="showTip(event, 'fs3', 21)" class="rt">Person</span><span class="pn">.</span><span class="prop">Name</span> <span class="o">=</span> <span class="s">&quot;John&quot;</span>
+      <span class="prop">Age</span> <span class="o">=</span> <span class="n">44</span>
+      <span class="prop">Children</span> <span class="o">=</span>
+      <span class="pn">[</span>
+        <span class="pn">{</span> <span onmouseout="hideTip(event, 'fs3', 22)" onmouseover="showTip(event, 'fs3', 22)" class="rt">Person</span><span class="pn">.</span><span class="prop">Name</span> <span class="o">=</span> <span class="s">&quot;Katy&quot;</span>
+          <span class="prop">Age</span> <span class="o">=</span> <span class="n">5</span>
+          <span class="prop">Children</span> <span class="o">=</span> <span class="pn">[</span><span class="pn">]</span> <span class="pn">}</span>
+        <span class="pn">{</span> <span onmouseout="hideTip(event, 'fs3', 23)" onmouseover="showTip(event, 'fs3', 23)" class="rt">Person</span><span class="pn">.</span><span class="prop">Name</span> <span class="o">=</span> <span class="s">&quot;Johnny&quot;</span>
+          <span class="prop">Age</span> <span class="o">=</span> <span class="n">7</span>
+          <span class="prop">Children</span> <span class="o">=</span> <span class="pn">[</span><span class="pn">]</span> <span class="pn">}</span>
+      <span class="pn">]</span> <span class="pn">}</span>
+
+<span onmouseout="hideTip(event, 'fs12', 24)" onmouseover="showTip(event, 'fs12', 24)" class="fn">printfn</span> <span class="s">&quot;</span><span class="pf">%s</span><span class="s">&quot;</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs5', 25)" onmouseover="showTip(event, 'fs5', 25)" class="fn">string</span> <span class="pn">(</span><span class="id">toJson</span> <span onmouseout="hideTip(event, 'fs11', 26)" onmouseover="showTip(event, 'fs11', 26)" class="id">p</span><span class="pn">)</span><span class="pn">)</span>
+</code></pre>
+<p>And you can map it from JSON like this:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs3', 27)" onmouseover="showTip(event, 'fs3', 27)" class="rt">Person</span> <span class="k">with</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="fn">OfJson</span> <span onmouseout="hideTip(event, 'fs13', 28)" onmouseover="showTip(event, 'fs13', 28)" class="fn">json</span> <span class="o">=</span>
+        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs13', 29)" onmouseover="showTip(event, 'fs13', 29)" class="fn">json</span> <span class="k">with</span>
+        <span class="pn">|</span> <span class="id">JObject</span> <span onmouseout="hideTip(event, 'fs14', 30)" onmouseover="showTip(event, 'fs14', 30)" class="fn">o</span> <span class="k">-&gt;</span>
+            <span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 31)" onmouseover="showTip(event, 'fs15', 31)" class="fn">name</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 32)" onmouseover="showTip(event, 'fs14', 32)" class="fn">o</span> <span class="pn">.</span><span class="id">@</span> <span class="s">&quot;name&quot;</span>
+            <span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 33)" onmouseover="showTip(event, 'fs16', 33)" class="fn">age</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 34)" onmouseover="showTip(event, 'fs14', 34)" class="fn">o</span> <span class="pn">.</span><span class="id">@</span> <span class="s">&quot;age&quot;</span>
+            <span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 35)" onmouseover="showTip(event, 'fs17', 35)" class="fn">children</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 36)" onmouseover="showTip(event, 'fs14', 36)" class="fn">o</span> <span class="pn">.</span><span class="id">@</span> <span class="s">&quot;children&quot;</span>
+            <span class="k">match</span> <span onmouseout="hideTip(event, 'fs15', 37)" onmouseover="showTip(event, 'fs15', 37)" class="fn">name</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs16', 38)" onmouseover="showTip(event, 'fs16', 38)" class="fn">age</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs17', 39)" onmouseover="showTip(event, 'fs17', 39)" class="fn">children</span> <span class="k">with</span>
+            <span class="pn">|</span> <span class="id">Decode</span><span class="pn">.</span><span class="id">Success</span> <span onmouseout="hideTip(event, 'fs15', 40)" onmouseover="showTip(event, 'fs15', 40)" class="id">name</span><span class="pn">,</span> <span class="id">Decode</span><span class="pn">.</span><span class="id">Success</span> <span onmouseout="hideTip(event, 'fs16', 41)" onmouseover="showTip(event, 'fs16', 41)" class="id">age</span><span class="pn">,</span> <span class="id">Decode</span><span class="pn">.</span><span class="id">Success</span> <span onmouseout="hideTip(event, 'fs17', 42)" onmouseover="showTip(event, 'fs17', 42)" class="id">children</span> <span class="k">-&gt;</span>
+                <span class="id">Decode</span><span class="pn">.</span><span class="id">Success</span> <span class="pn">{</span>
+                    <span onmouseout="hideTip(event, 'fs3', 43)" onmouseover="showTip(event, 'fs3', 43)" class="id">Person</span><span class="pn">.</span><span class="id">Name</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs15', 44)" onmouseover="showTip(event, 'fs15', 44)" class="id">name</span>
+                    <span class="id">Age</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs16', 45)" onmouseover="showTip(event, 'fs16', 45)" class="id">age</span>
+                    <span class="id">Children</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs17', 46)" onmouseover="showTip(event, 'fs17', 46)" class="id">children</span>
+                <span class="pn">}</span>
+            <span class="pn">|</span> <span class="id">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs18', 47)" onmouseover="showTip(event, 'fs18', 47)" class="id">Error</span> <span class="o">&lt;|</span> <span class="id">Uncategorized</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs19', 48)" onmouseover="showTip(event, 'fs19', 48)" class="id">sprintf</span> <span class="s">&quot;Error parsing person: %A&quot;</span> <span class="id">x</span><span class="pn">)</span>
+        <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs20', 49)" onmouseover="showTip(event, 'fs20', 49)" class="fn">x</span> <span class="k">-&gt;</span> <span class="id">Decode</span><span class="pn">.</span><span class="id">Fail</span><span class="pn">.</span><span class="id">objExpected</span> <span onmouseout="hideTip(event, 'fs20', 50)" onmouseover="showTip(event, 'fs20', 50)" class="id">x</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs21', 51)" onmouseover="showTip(event, 'fs21', 51)" class="id">john</span> <span class="pn">:</span> <span onmouseout="hideTip(event, 'fs3', 52)" onmouseover="showTip(event, 'fs3', 52)" class="id">Person</span> <span class="id">ParseResult</span> <span class="o">=</span> <span class="id">parseJson</span> <span class="s">&quot;&quot;&quot;{</span>
+<span class="s">    &quot;name&quot;: &quot;John&quot;,</span>
+<span class="s">    &quot;age&quot;: 44,</span>
+<span class="s">    &quot;children&quot;: [{</span>
+<span class="s">        &quot;name&quot;: &quot;Katy&quot;,</span>
+<span class="s">        &quot;age&quot;: 5,</span>
+<span class="s">        &quot;children&quot;: []</span>
+<span class="s">    }, {</span>
+<span class="s">        &quot;name&quot;: &quot;Johnny&quot;,</span>
+<span class="s">        &quot;age&quot;: 7,</span>
+<span class="s">        &quot;children&quot;: []</span>
+<span class="s">    }]</span>
+<span class="s">}&quot;&quot;&quot;</span>
+</code></pre>
+<p>Though it's much easier to do this in a monadic or applicative way. For example, using <a href="https://github.com/fsprojects/FSharpPlus">FSharpPlus</a> (which is already a dependency of Fleece):</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs22', 53)" onmouseover="showTip(event, 'fs22', 53)" class="id">FSharpPlus</span>
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs23', 54)" onmouseover="showTip(event, 'fs23', 54)" class="rt">PersonAp</span> <span class="o">=</span> <span class="pn">{</span>
+    <span onmouseout="hideTip(event, 'fs24', 55)" onmouseover="showTip(event, 'fs24', 55)" class="prop">Name</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs5', 56)" onmouseover="showTip(event, 'fs5', 56)" class="rt">string</span>
+    <span onmouseout="hideTip(event, 'fs25', 57)" onmouseover="showTip(event, 'fs25', 57)" class="prop">Age</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs7', 58)" onmouseover="showTip(event, 'fs7', 58)" class="vt">int</span>
+    <span onmouseout="hideTip(event, 'fs26', 59)" onmouseover="showTip(event, 'fs26', 59)" class="prop">Children</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs23', 60)" onmouseover="showTip(event, 'fs23', 60)" class="rt">PersonAp</span> <span onmouseout="hideTip(event, 'fs9', 61)" onmouseover="showTip(event, 'fs9', 61)" class="rt">list</span>
+<span class="pn">}</span>
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs23', 62)" onmouseover="showTip(event, 'fs23', 62)" class="rt">PersonAp</span> <span class="k">with</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="fn">Create</span> <span onmouseout="hideTip(event, 'fs27', 63)" onmouseover="showTip(event, 'fs27', 63)" class="fn">name</span> <span onmouseout="hideTip(event, 'fs28', 64)" onmouseover="showTip(event, 'fs28', 64)" class="fn">age</span> <span onmouseout="hideTip(event, 'fs29', 65)" onmouseover="showTip(event, 'fs29', 65)" class="fn">children</span> <span class="o">=</span> <span class="pn">{</span> <span onmouseout="hideTip(event, 'fs23', 66)" onmouseover="showTip(event, 'fs23', 66)" class="rt">PersonAp</span><span class="pn">.</span><span class="prop">Name</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs27', 67)" onmouseover="showTip(event, 'fs27', 67)" class="fn">name</span><span class="pn">;</span> <span class="prop">Age</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs28', 68)" onmouseover="showTip(event, 'fs28', 68)" class="fn">age</span><span class="pn">;</span> <span class="prop">Children</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 69)" onmouseover="showTip(event, 'fs29', 69)" class="fn">children</span> <span class="pn">}</span>
+
+    <span class="k">static</span> <span class="k">member</span> <span class="fn">OfJson</span> <span onmouseout="hideTip(event, 'fs13', 70)" onmouseover="showTip(event, 'fs13', 70)" class="fn">json</span> <span class="o">=</span>
+        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs13', 71)" onmouseover="showTip(event, 'fs13', 71)" class="fn">json</span> <span class="k">with</span>
+        <span class="pn">|</span> <span class="id">JObject</span> <span onmouseout="hideTip(event, 'fs30', 72)" onmouseover="showTip(event, 'fs30', 72)" class="fn">o</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs23', 73)" onmouseover="showTip(event, 'fs23', 73)" class="rt">PersonAp</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs31', 74)" onmouseover="showTip(event, 'fs31', 74)" class="id">Create</span> <span class="o">&lt;!&gt;</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs30', 75)" onmouseover="showTip(event, 'fs30', 75)" class="fn">o</span> <span class="pn">.</span><span class="id">@</span> <span class="s">&quot;name&quot;</span><span class="pn">)</span> <span class="o">&lt;*&gt;</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs30', 76)" onmouseover="showTip(event, 'fs30', 76)" class="fn">o</span> <span class="pn">.</span><span class="id">@</span> <span class="s">&quot;age&quot;</span><span class="pn">)</span> <span class="o">&lt;*&gt;</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs30', 77)" onmouseover="showTip(event, 'fs30', 77)" class="fn">o</span> <span class="pn">.</span><span class="id">@</span> <span class="s">&quot;children&quot;</span><span class="pn">)</span>
+        <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs20', 78)" onmouseover="showTip(event, 'fs20', 78)" class="fn">x</span> <span class="k">-&gt;</span> <span class="id">Decode</span><span class="pn">.</span><span class="id">Fail</span><span class="pn">.</span><span class="id">objExpected</span> <span onmouseout="hideTip(event, 'fs20', 79)" onmouseover="showTip(event, 'fs20', 79)" class="id">x</span>
+</code></pre>
+<p>Or monadically:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span onmouseout="hideTip(event, 'fs32', 80)" onmouseover="showTip(event, 'fs32', 80)" class="rt">PersonM</span> <span class="o">=</span> <span class="pn">{</span>
+    <span onmouseout="hideTip(event, 'fs33', 81)" onmouseover="showTip(event, 'fs33', 81)" class="prop">Name</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs5', 82)" onmouseover="showTip(event, 'fs5', 82)" class="rt">string</span>
+    <span onmouseout="hideTip(event, 'fs34', 83)" onmouseover="showTip(event, 'fs34', 83)" class="prop">Age</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs7', 84)" onmouseover="showTip(event, 'fs7', 84)" class="vt">int</span>
+    <span onmouseout="hideTip(event, 'fs35', 85)" onmouseover="showTip(event, 'fs35', 85)" class="prop">Children</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs32', 86)" onmouseover="showTip(event, 'fs32', 86)" class="rt">PersonM</span> <span onmouseout="hideTip(event, 'fs9', 87)" onmouseover="showTip(event, 'fs9', 87)" class="rt">list</span>
+<span class="pn">}</span>
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs32', 88)" onmouseover="showTip(event, 'fs32', 88)" class="rt">PersonM</span> <span class="k">with</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="fn">OfJson</span> <span onmouseout="hideTip(event, 'fs13', 89)" onmouseover="showTip(event, 'fs13', 89)" class="fn">json</span> <span class="o">=</span>
+        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs13', 90)" onmouseover="showTip(event, 'fs13', 90)" class="fn">json</span> <span class="k">with</span>
+        <span class="pn">|</span> <span class="id">JObject</span> <span onmouseout="hideTip(event, 'fs36', 91)" onmouseover="showTip(event, 'fs36', 91)" class="fn">o</span> <span class="k">-&gt;</span>
+            <span onmouseout="hideTip(event, 'fs37', 92)" onmouseover="showTip(event, 'fs37', 92)" class="k">monad</span> <span class="pn">{</span>
+                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs27', 93)" onmouseover="showTip(event, 'fs27', 93)" class="fn">name</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs36', 94)" onmouseover="showTip(event, 'fs36', 94)" class="fn">o</span> <span class="pn">.</span><span class="id">@</span> <span class="s">&quot;name&quot;</span>
+                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs38', 95)" onmouseover="showTip(event, 'fs38', 95)" class="fn">age</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs36', 96)" onmouseover="showTip(event, 'fs36', 96)" class="fn">o</span> <span class="pn">.</span><span class="id">@</span> <span class="s">&quot;age&quot;</span>
+                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs39', 97)" onmouseover="showTip(event, 'fs39', 97)" class="fn">children</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs36', 98)" onmouseover="showTip(event, 'fs36', 98)" class="fn">o</span> <span class="pn">.</span><span class="id">@</span> <span class="s">&quot;children&quot;</span>
+                <span class="k">return</span> <span class="pn">{</span>
+                    <span onmouseout="hideTip(event, 'fs3', 99)" onmouseover="showTip(event, 'fs3', 99)" class="rt">Person</span><span class="pn">.</span><span class="prop">Name</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs27', 100)" onmouseover="showTip(event, 'fs27', 100)" class="fn">name</span>
+                    <span class="prop">Age</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs38', 101)" onmouseover="showTip(event, 'fs38', 101)" class="fn">age</span>
+                    <span class="prop">Children</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs39', 102)" onmouseover="showTip(event, 'fs39', 102)" class="fn">children</span>
+                <span class="pn">}</span>
+            <span class="pn">}</span>
+        <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs20', 103)" onmouseover="showTip(event, 'fs20', 103)" class="fn">x</span> <span class="k">-&gt;</span> <span class="id">Decode</span><span class="pn">.</span><span class="id">Fail</span><span class="pn">.</span><span class="id">objExpected</span> <span onmouseout="hideTip(event, 'fs20', 104)" onmouseover="showTip(event, 'fs20', 104)" class="id">x</span>
+</code></pre>
+<p>Or you can use the Choice monad/applicative in <a href="https://github.com/fsprojects/FSharpx.Extras">FSharpx.Extras</a> instead, if you prefer.</p>
+<p>You can see more examples in the <a href="https://github.com/mausch/EdmundsNet">EdmundsNet</a> project.</p>
+
+            <div class="fsdocs-tip" id="fs1">namespace System</div>
+<div class="fsdocs-tip" id="fs2">namespace System.Json</div>
+<div class="fsdocs-tip" id="fs3">type Person =<br />&#160;&#160;{ Name: string<br />&#160;&#160;&#160;&#160;Age: int<br />&#160;&#160;&#160;&#160;Children: Person list }<br />&#160;&#160;&#160;&#160;static member OfJson : json:&#39;a0 -&gt; &#39;a1<br />&#160;&#160;&#160;&#160;static member ToJson : x:Person -&gt; &#39;a0</div>
+<div class="fsdocs-tip" id="fs4">Person.Name: string</div>
+<div class="fsdocs-tip" id="fs5">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />--------------------<br />type string = System.String</div>
+<div class="fsdocs-tip" id="fs6">Person.Age: int</div>
+<div class="fsdocs-tip" id="fs7">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />--------------------<br />[&lt;Struct&gt;]<br />type int = int32<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; =<br />&#160;&#160;int</div>
+<div class="fsdocs-tip" id="fs8">Person.Children: Person list</div>
+<div class="fsdocs-tip" id="fs9">type &#39;T list = List&lt;&#39;T&gt;</div>
+<div class="fsdocs-tip" id="fs10">val x : Person</div>
+<div class="fsdocs-tip" id="fs11">val p : Person</div>
+<div class="fsdocs-tip" id="fs12">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T</div>
+<div class="fsdocs-tip" id="fs13">val json : &#39;a</div>
+<div class="fsdocs-tip" id="fs14">val o : obj</div>
+<div class="fsdocs-tip" id="fs15">val name : obj</div>
+<div class="fsdocs-tip" id="fs16">val age : obj</div>
+<div class="fsdocs-tip" id="fs17">val children : obj</div>
+<div class="fsdocs-tip" id="fs18">union case Result.Error: ErrorValue: &#39;TError -&gt; Result&lt;&#39;T,&#39;TError&gt;</div>
+<div class="fsdocs-tip" id="fs19">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T</div>
+<div class="fsdocs-tip" id="fs20">val x : &#39;a</div>
+<div class="fsdocs-tip" id="fs21">val john : &#39;a</div>
+<div class="fsdocs-tip" id="fs22">namespace FSharpPlus</div>
+<div class="fsdocs-tip" id="fs23">type PersonAp =<br />&#160;&#160;{ Name: string<br />&#160;&#160;&#160;&#160;Age: int<br />&#160;&#160;&#160;&#160;Children: PersonAp list }<br />&#160;&#160;&#160;&#160;static member Create : name:string -&gt; age:int -&gt; children:PersonAp list -&gt; PersonAp<br />&#160;&#160;&#160;&#160;static member OfJson : json:&#39;a0 -&gt; &#39;a (requires member ( &lt;*&gt; ) and member ( &lt;*&gt; ) and member Map)</div>
+<div class="fsdocs-tip" id="fs24">PersonAp.Name: string</div>
+<div class="fsdocs-tip" id="fs25">PersonAp.Age: int</div>
+<div class="fsdocs-tip" id="fs26">PersonAp.Children: PersonAp list</div>
+<div class="fsdocs-tip" id="fs27">val name : string</div>
+<div class="fsdocs-tip" id="fs28">val age : int</div>
+<div class="fsdocs-tip" id="fs29">val children : PersonAp list</div>
+<div class="fsdocs-tip" id="fs30">val o : &#39;a (requires member ( .@ ) and member Map and member ( &lt;*&gt; ) and member ( &lt;*&gt; ))</div>
+<div class="fsdocs-tip" id="fs31">static member PersonAp.Create : name:string -&gt; age:int -&gt; children:PersonAp list -&gt; PersonAp</div>
+<div class="fsdocs-tip" id="fs32">type PersonM =<br />&#160;&#160;{ Name: string<br />&#160;&#160;&#160;&#160;Age: int<br />&#160;&#160;&#160;&#160;Children: PersonM list }<br />&#160;&#160;&#160;&#160;static member OfJson : json:&#39;a0 -&gt; &#39;a (requires member ( &gt;&gt;= ) and member Return and member Delay)</div>
+<div class="fsdocs-tip" id="fs33">PersonM.Name: string</div>
+<div class="fsdocs-tip" id="fs34">PersonM.Age: int</div>
+<div class="fsdocs-tip" id="fs35">PersonM.Children: PersonM list</div>
+<div class="fsdocs-tip" id="fs36">val o : &#39;a (requires member ( .@ ) and member ( &gt;&gt;= ) and member Return and member Delay)</div>
+<div class="fsdocs-tip" id="fs37">val monad : MonadFxBuilder</div>
+<div class="fsdocs-tip" id="fs38">val age : string</div>
+<div class="fsdocs-tip" id="fs39">val children : string</div>
+
+        </div>
+
+        <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+        <script type="text/javascript">var fsdocs_search_baseurl = '/Fleece/';</script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+        <script type="text/javascript" src="/Fleece/content/fsdocs-search.js"></script>
+        <!-- END SEARCH BOX: this adds support for the search box -->
+    </div>
+</body>
+
+</html>
+

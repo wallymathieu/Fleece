@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>suave</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="Mauricio Scheffer,Lev Gorodinski,Oskar Gewalli, Gustavo P. Leon">
+
+    <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
+
+    <link type="text/css" rel="stylesheet" href="/Fleece/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="/Fleece/content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="/Fleece/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="/Fleece/content/fsdocs-tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <!-- END SEARCH BOX: this adds support for the search box -->
+    
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <a href="https://github.com/fsprojects/Fleece/"><img id="fsdocs-logo" src="content/img/logo.svg" /></a>
+            <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+            <div id="header">
+                <div class="searchbox" id="fsdocs-searchbox">
+                    <label for="search-by">
+                        <i class="fas fa-search"></i>
+                    </label>
+                    <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                    <span data-search-clear="">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- END SEARCH BOX: this adds support for the search box -->
+            <ul class="navbar-nav">
+                <li class="nav-header">Links</li>
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/Fleece/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/Fleece/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/Fleece/">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/codec.html">
+    codec
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/license.html">
+    license
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/release-notes.html">
+    release-notes
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/comparison-with-json-net.html">
+    comparison-with-json-net
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/giraffe.html">
+    giraffe
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/suave.html">
+    suave
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/combinators.html">
+    combinators
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/to-json-and-of-json.html">
+    to-json-and-of-json
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/Fleece/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="masthead">
+            <h3 class="muted"><a href="https://github.com/fsprojects/Fleece/">Fleece</a></h3>
+        </div>
+        <hr />
+        <div class="container" id="fsdocs-content">
+            <h2><a name="Suave" class="anchor" href="#Suave">Suave</a></h2>
+<p>In this page we will get an overview of how you can use Fleece together with Suave.</p>
+<p>A minimal integration can be done by</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">Suave</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="id">Suave</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="m">Http</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 4)" onmouseover="showTip(event, 'fs2', 4)" class="id">Suave</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs4', 5)" onmouseover="showTip(event, 'fs4', 5)" class="m">Operators</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs5', 6)" onmouseover="showTip(event, 'fs5', 6)" class="id">System</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="id">IO</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs5', 8)" onmouseover="showTip(event, 'fs5', 8)" class="id">System</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs7', 9)" onmouseover="showTip(event, 'fs7', 9)" class="id">Text</span>
+<span class="c">// Fleece and Json related:</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="id">System</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs8', 11)" onmouseover="showTip(event, 'fs8', 11)" class="id">Json</span>
+<span class="k">open</span> <span class="id">Fleece</span><span class="pn">.</span><span class="id">SystemJson</span>
+<span class="k">open</span> <span class="id">Fleece</span><span class="pn">.</span><span class="id">SystemJson</span><span class="pn">.</span><span class="id">Operators</span>
+
+<span class="k">module</span> <span class="m">BusinessApp</span><span class="o">=</span>
+    <span class="pn">[&lt;</span><span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="rt">RequireQualifiedAccess</span><span class="pn">&gt;]</span>
+    <span class="k">module</span> <span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="m">Json</span> <span class="o">=</span>
+        <span class="k">let</span> <span class="k">inline</span> <span onmouseout="hideTip(event, 'fs11', 14)" onmouseover="showTip(event, 'fs11', 14)" class="fn">OK</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs12', 15)" onmouseover="showTip(event, 'fs12', 15)" class="fn">dataObj</span><span class="pn">)</span> <span class="pn">:</span> <span onmouseout="hideTip(event, 'fs13', 16)" onmouseover="showTip(event, 'fs13', 16)" class="fn">WebPart</span><span class="o">=</span>
+            <span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 17)" onmouseover="showTip(event, 'fs14', 17)" class="fn">str</span> <span class="o">=</span> <span class="id">toJson</span> <span onmouseout="hideTip(event, 'fs12', 18)" onmouseover="showTip(event, 'fs12', 18)" class="id">dataObj</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs15', 19)" onmouseover="showTip(event, 'fs15', 19)" class="fn">string</span>
+            <span onmouseout="hideTip(event, 'fs16', 20)" onmouseover="showTip(event, 'fs16', 20)" class="m">Successful</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs17', 21)" onmouseover="showTip(event, 'fs17', 21)" class="id">OK</span> <span onmouseout="hideTip(event, 'fs14', 22)" onmouseover="showTip(event, 'fs14', 22)" class="fn">str</span>
+            <span class="o">&gt;</span><span class="o">=&gt;</span> <span onmouseout="hideTip(event, 'fs18', 23)" onmouseover="showTip(event, 'fs18', 23)" class="m">Writers</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs19', 24)" onmouseover="showTip(event, 'fs19', 24)" class="id">setMimeType</span> <span class="s">&quot;application/json; charset=utf-8&quot;</span>
+
+        <span class="k">let</span> <span class="k">inline</span> <span onmouseout="hideTip(event, 'fs20', 25)" onmouseover="showTip(event, 'fs20', 25)" class="fn">parseRequestForm</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs21', 26)" onmouseover="showTip(event, 'fs21', 26)" class="fn">ctx</span> <span class="pn">:</span> <span onmouseout="hideTip(event, 'fs22', 27)" onmouseover="showTip(event, 'fs22', 27)" class="rt">HttpContext</span><span class="pn">)</span> <span class="o">=</span>
+            <span class="k">let</span> <span onmouseout="hideTip(event, 'fs23', 28)" onmouseover="showTip(event, 'fs23', 28)" class="fn">body</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 29)" onmouseover="showTip(event, 'fs21', 29)" class="fn">ctx</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs24', 30)" onmouseover="showTip(event, 'fs24', 30)" class="prop">request</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs25', 31)" onmouseover="showTip(event, 'fs25', 31)" class="id">rawForm</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs26', 32)" onmouseover="showTip(event, 'fs26', 32)" class="rt">Encoding</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs27', 33)" onmouseover="showTip(event, 'fs27', 33)" class="id">UTF8</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs28', 34)" onmouseover="showTip(event, 'fs28', 34)" class="id">GetString</span>
+            <span class="id">parseJson</span> <span onmouseout="hideTip(event, 'fs23', 35)" onmouseover="showTip(event, 'fs23', 35)" class="id">body</span>
+</code></pre>
+<p>In the web API part of your business app you would then do something like the code below:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs29', 36)" onmouseover="showTip(event, 'fs29', 36)" class="m">BusinessApp</span>
+
+<span class="k">type</span> <span class="rt">Person</span> <span class="o">=</span> <span class="pn">{</span> <span onmouseout="hideTip(event, 'fs30', 37)" onmouseover="showTip(event, 'fs30', 37)" class="prop">Name</span> <span class="pn">:</span> <span onmouseout="hideTip(event, 'fs15', 38)" onmouseover="showTip(event, 'fs15', 38)" class="rt">string</span> <span class="pn">}</span>
+<span class="k">with</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="prop">JsonObjCodec</span> <span class="o">=</span>
+        <span class="k">fun</span> <span onmouseout="hideTip(event, 'fs31', 39)" onmouseover="showTip(event, 'fs31', 39)" class="fn">name</span> <span class="k">-&gt;</span> <span class="pn">{</span> <span class="prop">Name</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs31', 40)" onmouseover="showTip(event, 'fs31', 40)" class="fn">name</span> <span class="pn">}</span>
+        <span class="pn">&lt;!&gt;</span> <span class="id">jreq</span>  <span class="s">&quot;name&quot;</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs32', 41)" onmouseover="showTip(event, 'fs32', 41)" class="id">Some</span> <span class="o">&lt;&lt;</span> <span class="k">fun</span> <span class="id">x</span> <span class="k">-&gt;</span> <span class="id">x</span><span class="pn">.</span><span class="id">Name</span><span class="pn">)</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 42)" onmouseover="showTip(event, 'fs33', 42)" class="fn">personHandler</span> <span class="pn">:</span> <span onmouseout="hideTip(event, 'fs13', 43)" onmouseover="showTip(event, 'fs13', 43)" class="fn">WebPart</span> <span class="o">=</span>
+    <span onmouseout="hideTip(event, 'fs34', 44)" onmouseover="showTip(event, 'fs34', 44)" class="fn">warbler</span> <span class="pn">(</span><span class="k">fun</span> <span onmouseout="hideTip(event, 'fs21', 45)" onmouseover="showTip(event, 'fs21', 45)" class="fn">ctx</span> <span class="k">-&gt;</span>
+            <span class="k">match</span> <span onmouseout="hideTip(event, 'fs10', 46)" onmouseover="showTip(event, 'fs10', 46)" class="m">Json</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs20', 47)" onmouseover="showTip(event, 'fs20', 47)" class="id">parseRequestForm</span> <span onmouseout="hideTip(event, 'fs21', 48)" onmouseover="showTip(event, 'fs21', 48)" class="fn">ctx</span> <span class="k">with</span> <span class="c">// instead of using mapJson</span>
+            <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs35', 49)" onmouseover="showTip(event, 'fs35', 49)" class="uc">Ok</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs36', 50)" onmouseover="showTip(event, 'fs36', 50)" class="fn">person</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs37', 51)" onmouseover="showTip(event, 'fs37', 51)" class="rt">Person</span><span class="pn">)</span><span class="k">-&gt;</span>
+                <span onmouseout="hideTip(event, 'fs10', 52)" onmouseover="showTip(event, 'fs10', 52)" class="m">Json</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs11', 53)" onmouseover="showTip(event, 'fs11', 53)" class="id">OK</span> <span onmouseout="hideTip(event, 'fs36', 54)" onmouseover="showTip(event, 'fs36', 54)" class="fn">person</span>
+            <span class="c">// and ideally we would deal with case when the parsing fails as well</span>
+    <span class="pn">)</span>
+</code></pre>
+
+            <div class="fsdocs-tip" id="fs1">module Suave</div>
+<div class="fsdocs-tip" id="fs2">namespace Suave</div>
+<div class="fsdocs-tip" id="fs3">module Http<br /><br />from Suave</div>
+<div class="fsdocs-tip" id="fs4">module Operators<br /><br />from Suave</div>
+<div class="fsdocs-tip" id="fs5">namespace System</div>
+<div class="fsdocs-tip" id="fs6">namespace System.IO</div>
+<div class="fsdocs-tip" id="fs7">namespace System.Text</div>
+<div class="fsdocs-tip" id="fs8">namespace System.Json</div>
+<div class="fsdocs-tip" id="fs9">Multiple items<br />type RequireQualifiedAccessAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; RequireQualifiedAccessAttribute<br /><br />--------------------<br />new : unit -&gt; RequireQualifiedAccessAttribute</div>
+<div class="fsdocs-tip" id="fs10">Multiple items<br />module Json<br /><br />from Suave.BusinessApp<br /><br />--------------------<br />namespace System.Text.Json<br /><br />--------------------<br />module Json<br /><br />from Suave</div>
+<div class="fsdocs-tip" id="fs11">val OK : dataObj:&#39;a -&gt; WebPart</div>
+<div class="fsdocs-tip" id="fs12">val dataObj : &#39;a</div>
+<div class="fsdocs-tip" id="fs13">Multiple items<br />module WebPart<br /><br />from Suave<br /><br />--------------------<br />type WebPart = WebPart&lt;HttpContext&gt;<br /><br />--------------------<br />type WebPart&lt;&#39;a&gt; = &#39;a -&gt; Async&lt;&#39;a option&gt;</div>
+<div class="fsdocs-tip" id="fs14">val str : string</div>
+<div class="fsdocs-tip" id="fs15">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />--------------------<br />type string = System.String</div>
+<div class="fsdocs-tip" id="fs16">module Successful<br /><br />from Suave</div>
+<div class="fsdocs-tip" id="fs17">val OK : body:string -&gt; WebPart</div>
+<div class="fsdocs-tip" id="fs18">module Writers<br /><br />from Suave</div>
+<div class="fsdocs-tip" id="fs19">val setMimeType : mimeType:string -&gt; WebPart</div>
+<div class="fsdocs-tip" id="fs20">val parseRequestForm : ctx:HttpContext -&gt; &#39;a</div>
+<div class="fsdocs-tip" id="fs21">val ctx : HttpContext</div>
+<div class="fsdocs-tip" id="fs22">Multiple items<br />module HttpContext<br /><br />from Suave.Http<br /><br />--------------------<br />type HttpContext =<br />&#160;&#160;{ request: HttpRequest<br />&#160;&#160;&#160;&#160;runtime: HttpRuntime<br />&#160;&#160;&#160;&#160;connection: Connection<br />&#160;&#160;&#160;&#160;userState: Map&lt;string,obj&gt;<br />&#160;&#160;&#160;&#160;response: HttpResult }<br />&#160;&#160;&#160;&#160;member clientIp : trustProxy:bool -&gt; sources:string list -&gt; IPAddress<br />&#160;&#160;&#160;&#160;member clientPort : trustProxy:bool -&gt; sources:string list -&gt; Port<br />&#160;&#160;&#160;&#160;member clientProto : trustProxy:bool -&gt; sources:string list -&gt; string<br />&#160;&#160;&#160;&#160;member clientIpTrustProxy : IPAddress<br />&#160;&#160;&#160;&#160;member clientPortTrustProxy : Port<br />&#160;&#160;&#160;&#160;member clientProtoTrustProxy : string<br />&#160;&#160;&#160;&#160;member isLocal : bool<br />&#160;&#160;&#160;&#160;static member clientIp_ : Property&lt;HttpContext,IPAddress&gt;<br />&#160;&#160;&#160;&#160;static member clientPort_ : Property&lt;HttpContext,Port&gt;<br />&#160;&#160;&#160;&#160;static member clientProto_ : Property&lt;HttpContext,string&gt;<br />&#160;&#160;&#160;&#160;...</div>
+<div class="fsdocs-tip" id="fs23">val body : string</div>
+<div class="fsdocs-tip" id="fs24">HttpContext.request: HttpRequest</div>
+<div class="fsdocs-tip" id="fs25">HttpRequest.rawForm: byte []</div>
+<div class="fsdocs-tip" id="fs26">type Encoding =<br />&#160;&#160;interface ICloneable<br />&#160;&#160;new : unit -&gt; unit + 2 overloads<br />&#160;&#160;member Clone : unit -&gt; obj<br />&#160;&#160;member Equals : value: obj -&gt; bool<br />&#160;&#160;member GetByteCount : chars: nativeptr&lt;char&gt; * count: int -&gt; int + 5 overloads<br />&#160;&#160;member GetBytes : chars: nativeptr&lt;char&gt; * charCount: int * bytes: nativeptr&lt;byte&gt; * byteCount: int -&gt; int + 7 overloads<br />&#160;&#160;member GetCharCount : bytes: nativeptr&lt;byte&gt; * count: int -&gt; int + 3 overloads<br />&#160;&#160;member GetChars : bytes: nativeptr&lt;byte&gt; * byteCount: int * chars: nativeptr&lt;char&gt; * charCount: int -&gt; int + 4 overloads<br />&#160;&#160;member GetDecoder : unit -&gt; Decoder<br />&#160;&#160;member GetEncoder : unit -&gt; Encoder<br />&#160;&#160;...</div>
+<div class="fsdocs-tip" id="fs27">property Encoding.UTF8: Encoding with get</div>
+<div class="fsdocs-tip" id="fs28">(extension) Encoding.GetString(bytes: inref&lt;System.Buffers.ReadOnlySequence&lt;byte&gt;&gt;) : string<br />Encoding.GetString(bytes: System.ReadOnlySpan&lt;byte&gt;) : string<br />Encoding.GetString(bytes: byte []) : string<br />Encoding.GetString(bytes: nativeptr&lt;byte&gt;, byteCount: int) : string<br />Encoding.GetString(bytes: byte [], index: int, count: int) : string</div>
+<div class="fsdocs-tip" id="fs29">module BusinessApp<br /><br />from Suave</div>
+<div class="fsdocs-tip" id="fs30">Person.Name: string</div>
+<div class="fsdocs-tip" id="fs31">val name : string</div>
+<div class="fsdocs-tip" id="fs32">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="fsdocs-tip" id="fs33">val personHandler : WebPart</div>
+<div class="fsdocs-tip" id="fs34">val warbler : f:(&#39;t -&gt; &#39;t -&gt; &#39;u) -&gt; &#39;t -&gt; &#39;u</div>
+<div class="fsdocs-tip" id="fs35">union case Result.Ok: ResultValue: &#39;T -&gt; Result&lt;&#39;T,&#39;TError&gt;</div>
+<div class="fsdocs-tip" id="fs36">val person : Person</div>
+<div class="fsdocs-tip" id="fs37">type Person =<br />&#160;&#160;{ Name: string }<br />&#160;&#160;&#160;&#160;static member JsonObjCodec : obj</div>
+
+        </div>
+
+        <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+        <script type="text/javascript">var fsdocs_search_baseurl = '/Fleece/';</script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+        <script type="text/javascript" src="/Fleece/content/fsdocs-search.js"></script>
+        <!-- END SEARCH BOX: this adds support for the search box -->
+    </div>
+</body>
+
+</html>
+
