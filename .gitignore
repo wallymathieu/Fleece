@@ -1,0 +1,20 @@
+*.ide
+*.suo
+docs/*
+**/bin/*
+**/obj/*
+packages/*
+.nuget/*.exe
+*.nupkg
+.vs/
+.idea/
+
+.ionide
+
+docsrc/content/license.md
+docsrc/content/release-notes.md
+*.user
+
+# FSFormatting
+.fsdocs/
+tmp/watch
